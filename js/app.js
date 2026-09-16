@@ -108,7 +108,50 @@
       const space = n.spaceKo || surNation !== givenNation ? ' ' : '';
       return { ko: sur[0] + space + given[0], en: `${sur[1]} ${given[1]}` };
     }
-    return { ko: `${given[0]} ${sur[0]}`, en: `${given[1]} ${sur[1]}` };
+    const name = { ko: `${given[0]} ${sur[0]}`, en: `${given[1]} ${sur[1]}` };
+    // 러시아 국적이면 부칭을 붙인 풀네임도 만들어 둔다 (표시는 옵션에 따라)
+    if (n.patronymicExceptions) {
+      const pat = patronymic(n, pick(n.given.male), gid === 'female');
+      name.full = { ko: `${given[0]} ${pat[0]} ${sur[0]}`, en: `${given[1]} ${pat[1]} ${sur[1]}` };
+    }
+    return name;
+  }
+
+  /* 러시아 부칭: 아버지 이름 → 이반 → 이바노비치 / 이바노브나
+     - 받침으로 끝나면 받침을 풀어서 +오비치 (이반 → 이바노비치, 막심 → 막시모비치), ㄹ 받침은 +로비치
+     - 르·크·트·드·스·그·프로 끝나면 모음을 ㅗ로 (알렉산드르 → …드로비치, 야로슬라프 → …슬라보비치)
+     - 이로 끝나면 예비치 (세르게이 → 세르게예비치, 드미트리 → 드미트리예비치)
+     - 나머지는 예외표 */
+  function patronymic(nation, father, female) {
+    const [fko, fen] = father;
+    const ex = nation.patronymicExceptions[fen];
+    if (ex) return ex[female ? 1 : 0];
+
+    const syl = (cho, jung, jong = 0) => String.fromCharCode(0xAC00 + (cho * 21 + jung) * 28 + jong);
+    const code = fko.charCodeAt(fko.length - 1) - 0xAC00;
+    const cho = Math.floor(code / 588);
+    const jung = Math.floor((code % 588) / 28);
+    const jong = code % 28;
+    const head = fko.slice(0, -1);
+    const O = 8; // ㅗ
+    const jongToCho = { 1: 0, 4: 2, 16: 6, 17: 7 }; // ㄱ ㄴ ㅁ ㅂ
+    let ko;
+    if (jong === 8) ko = `${fko}로비치`;
+    else if (jong in jongToCho) ko = `${head}${syl(cho, jung)}${syl(jongToCho[jong], O)}비치`;
+    else if (jung === 18) ko = `${head}${syl(cho === 17 ? 7 : cho, O)}비치`; // ㅡ, 프 → 보
+    else if (fko.endsWith('이') && fko.length > 1) ko = `${head}예비치`;
+    else ko = `${fko}예비치`;
+
+    let en;
+    if (/(ei|ai|y)$/.test(fen)) en = `${fen.slice(0, -1)}yevich`;
+    else if (/i$/.test(fen)) en = `${fen}yevich`;
+    else en = `${fen}ovich`;
+
+    if (female) {
+      ko = ko.replace(/비치$/, '브나');
+      en = en.replace(/vich$/, 'vna');
+    }
+    return [ko, en];
   }
 
   // 성별 이름 + 중성적인 이름. 논바이너리는 절반 확률로 중성적인 이름만
@@ -118,8 +161,9 @@
     return [...nation.given[gid], ...unisex];
   }
 
-  // 같은 로마자 표기의 이름·성은 하나만 남긴다 (중성 이름이 우선)
+  // 같은 로마자 표기의 이름·성은 하나만 남긴다 (중성 이름이 우선). 직업도 중복 제거
   function dedupeNames() {
+    D.jobs = [...new Set(D.jobs)];
     const uniq = (arr, key, seen = new Set()) => arr.filter((x) => {
       const k = key(x).toLowerCase();
       if (seen.has(k)) return false;
@@ -303,7 +347,7 @@
   const list = (arr) => arr.map(textOf).join(', ');
 
   // 색 항목: 텍스트용 / 영수증 HTML용 (글자를 해당 색으로)
-  const colorText = (c) => `${c.ko} ${c.code}`;
+  const colorText = (c) => c.ko;
   const colorHtml = (c) => `<span class="swatch" style="color:${c.code}">${esc(c.ko)} ${c.code}</span>`;
 
   function hairText(p, html) {
@@ -400,19 +444,21 @@
     .map((s) => ({ ...s, rows: s.rows.filter((r) => !o.hidden.has(r.id)) }))
     .filter((s) => s.rows.length);
 
-  function summaryLine(p, o, withTheme) {
+  function summaryLine(p, o) {
     const show = (id) => !o.hidden.has(id);
     return [
       show('nation') && nationText(p),
       show('gender') && p.gender.ko,
       show('age') && `${p.age}세`,
       show('job') && p.job,
-      withTheme && `테마색 ${themeColor(p)}`,
     ].filter(Boolean).join(' · ');
   }
 
   function toMarkdown(p, o) {
-    const out = [`# ${p.name.ko} (${p.name.en})`, '', `> ${summaryLine(p, o, true)}`, ''];
+    const full = o.patronymic && p.name.full;
+    const out = [`# ${p.name.ko} (${p.name.en})`, ''];
+    if (full) out.push(`> ${full.ko} (${full.en})`, '>');
+    out.push(`> ${summaryLine(p, o)}`, '');
     visibleSections(o).forEach((s) => {
       out.push(`## ${s.ko}`);
       s.rows.forEach((r) => out.push(`- ${r.label}: ${r.v(p)}`));
@@ -506,6 +552,7 @@
       hMax: cm($('#heightMax')),
       fantasy: $('#optFantasy').checked,
       prompt: $('#optPrompt').checked,
+      patronymic: $('#optPatronymic').checked,
       hidden,
     };
   }
@@ -531,6 +578,7 @@
     $('#heightMax').value = o.hMax ?? '';
     if (typeof o.fantasy === 'boolean') $('#optFantasy').checked = o.fantasy;
     if (typeof o.prompt === 'boolean') $('#optPrompt').checked = o.prompt;
+    if (typeof o.patronymic === 'boolean') $('#optPatronymic').checked = o.patronymic;
     if (Array.isArray(o.hidden)) hidden = new Set(o.hidden.filter((id) => ALL_ROWS.includes(id)));
   }
 
@@ -653,7 +701,8 @@
     el.innerHTML = `<div class="r-body">
       <p class="r-kicker">PERSONA RECEIPT</p>
       <h1 class="r-name rr" role="button" tabindex="0" data-row="name" title="이름만 다시 뽑기">${esc(p.name.ko)}</h1>
-      <p class="r-roman">${esc(p.name.en)}</p>
+      ${o.patronymic && p.name.full ? `<p class="r-fullname">${esc(p.name.full.ko)}</p>` : ''}
+      <p class="r-roman">${esc(o.patronymic && p.name.full ? p.name.full.en : p.name.en)}</p>
       <p class="r-meta">${esc(summaryLine(p, o))}</p>
       <div class="r-order">
         <span>ORDER# <b style="color:${theme}">${theme.slice(1)}</b></span>
@@ -810,6 +859,7 @@
       if (e.target.closest('#itemPicker')) return;
       saveOptions();
     });
+    $('#optPatronymic').addEventListener('change', renderAll);
     $('#optPrompt').addEventListener('change', (e) => {
       if (!e.target.checked) { state.extras = null; save(); }
       renderAll();

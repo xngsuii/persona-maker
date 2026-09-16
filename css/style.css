@@ -243,6 +243,7 @@ button, input, select { font: inherit; color: inherit; }
   letter-spacing: -.01em;
   word-break: keep-all;
 }
+.r-fullname { text-align: center; margin: 2px 0 2px; }
 .r-roman { text-align: center; margin: 0; letter-spacing: .18em; text-transform: uppercase; }
 .r-meta { text-align: center; margin: 10px 0 0; }
 .r-info { display: flex; justify-content: space-between; gap: 8px; margin-top: 14px; }
