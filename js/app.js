@@ -3,9 +3,12 @@
 
   const D = window.PERSONA_DATA;
   const $ = (sel, root = document) => root.querySelector(sel);
-  const STORE_KEY = 'pr-last-v2';
+  const STORE_KEY = 'pr-last-v4';
+  const OPTS_KEY = 'pr-opts';
   const AGE_MIN = 20;
   const AGE_MAX = 60;
+  const HEIGHT_MIN = 140;
+  const HEIGHT_MAX = 210;
 
   /* ---------- random helpers ---------- */
   const rand = (n) => Math.floor(Math.random() * n);
@@ -60,8 +63,6 @@
     );
   }
 
-  const isLight = (hex) => hexToHsl(hex)[2] > 72;
-
   // 색 항목 하나를 뽑아 색상코드를 붙인다
   function rollColor(list, o, excludeKo) {
     const pool = list.filter((x) => !x.odd && (o.fantasy || x.natural) && x.ko !== excludeKo);
@@ -69,48 +70,146 @@
     return { ko: c.ko, en: c.en, code: jitterHex(c.hex) };
   }
 
-  /* ---------- options ---------- */
-  function readOptions() {
-    const minEl = $('#ageMin');
-    const maxEl = $('#ageMax');
-    let min = clamp(parseInt(minEl.value, 10) || AGE_MIN, AGE_MIN, AGE_MAX);
-    let max = clamp(parseInt(maxEl.value, 10) || AGE_MAX, AGE_MIN, AGE_MAX);
-    if (min > max) [min, max] = [max, min];
-    minEl.value = min;
-    maxEl.value = max;
-    return {
-      gender: $('input[name="gender"]:checked').value,
-      nation: $('#nation').value,
-      min,
-      max,
-      fantasy: $('#optFantasy').checked,
-      nsfw: $('#optNsfw').checked,
-      prompt: $('#optPrompt').checked,
-    };
+  const hashHue = (str) => [...str].reduce((n, ch) => (n * 31 + ch.charCodeAt(0)) % 360, 7);
+
+  // 페르소나 테마색: 머리·눈 색 중 채도가 가장 높은 색을 기준으로 영수증에서 읽히는 밝기로 맞춘다.
+  // 전부 무채색이면 인상·체향에서 색조를 가져와 차분한 톤으로 만든다.
+  function themeColor(p) {
+    const eyes = p.eyeColor.odd ? p.eyeColor.colors : [p.eyeColor];
+    const codes = [p.hairColor, p.hairExtra.color, ...eyes].filter(Boolean).map((c) => c.code);
+    let [h, s, l] = codes.map(hexToHsl).sort((a, b) => b[1] - a[1])[0];
+    if (s < 14) {
+      h = hashHue(p.impression.ko + p.scent.top.note);
+      s = 22;
+    }
+    return hslToHex(h, clamp(s, 22, 72), clamp(l, 36, 56));
   }
 
   /* ---------- persona rollers ---------- */
+  // 이름 순서는 국적을 따른다.
+  // ~계: 성은 혈통 쪽, 이름은 국적 쪽 / 혼혈: 성과 이름을 두 나라에서 섞어서
   function rollName(p) {
     const n = D.nations[p.nation];
+    const h = p.heritage;
+    let surNation = n;
+    let givenNation = n;
+    if (h && h.type === 'heritage') {
+      surNation = D.nations[h.other];
+    } else if (h && h.type === 'mixed') {
+      const other = D.nations[h.other];
+      [surNation, givenNation] = shuffle([n, other]);
+      if (Math.random() < 0.3) givenNation = surNation; // 가끔은 한쪽 나라 이름 그대로
+    }
     const gid = p.gender.id === 'nonbinary' ? pick(['female', 'male']) : p.gender.id;
-    const given = pick(n.given[gid]);
-    let sur = pick(n.surnames);
+    const given = pick(givenPool(givenNation, gid, p.gender.id === 'nonbinary'));
+    let sur = pick(surNation.surnames);
     if (!Array.isArray(sur)) sur = gid === 'female' ? sur.f : sur.m;
     if (n.order === 'east') {
-      return { ko: sur[0] + (n.spaceKo ? ' ' : '') + given[0], en: `${sur[1]} ${given[1]}` };
+      const space = n.spaceKo || surNation !== givenNation ? ' ' : '';
+      return { ko: sur[0] + space + given[0], en: `${sur[1]} ${given[1]}` };
     }
     return { ko: `${given[0]} ${sur[0]}`, en: `${given[1]} ${sur[1]}` };
+  }
+
+  // 성별 이름 + 중성적인 이름. 논바이너리는 절반 확률로 중성적인 이름만
+  function givenPool(nation, gid, preferUnisex) {
+    const unisex = nation.given.unisex || [];
+    if (preferUnisex && unisex.length && Math.random() < 0.5) return unisex;
+    return [...nation.given[gid], ...unisex];
+  }
+
+  // 같은 로마자 표기의 이름·성은 하나만 남긴다 (중성 이름이 우선)
+  function dedupeNames() {
+    const uniq = (arr, key, seen = new Set()) => arr.filter((x) => {
+      const k = key(x).toLowerCase();
+      if (seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    });
+    Object.values(D.nations).forEach((n) => {
+      n.surnames = uniq(n.surnames, (x) => (Array.isArray(x) ? x[1] : x.m[1]));
+      const seen = new Set();
+      ['unisex', 'female', 'male'].forEach((g) => {
+        if (n.given[g]) n.given[g] = uniq(n.given[g], (x) => x[1], seen);
+      });
+    });
+  }
+
+  // 혈통: 단일 / 혼혈(mixed) / ~계(heritage)
+  function rollHeritage(p, o) {
+    let type = o.blood;
+    if (type === 'random') {
+      const r = Math.random();
+      type = r < 0.7 ? 'single' : r < 0.85 ? 'mixed' : 'heritage';
+    }
+    if (type === 'single') return null;
+    return { type, other: pick(Object.keys(D.nations).filter((id) => id !== p.nation)) };
+  }
+
+  function nationText(p) {
+    const n = D.nations[p.nation].ko;
+    const h = p.heritage;
+    if (!h) return n;
+    const other = D.nations[h.other].ko;
+    return h.type === 'mixed' ? `${n} · ${other} 혼혈` : `${other}계 ${n}인`;
+  }
+
+  // 체향: 탑 노트 향료 1개 + 베이스 노트 향료 1개 (서로 다른 향료)
+  function rollScent() {
+    const note = (stage, except) => {
+      const fam = pick(D.scentFamilies.filter((f) => f[stage]));
+      const n = pick(fam.notes.filter((x) => x !== except));
+      return { note: n, family: fam.ko };
+    };
+    const top = note('top');
+    return { top, base: note('base', top.note) };
+  }
+
+  function scentText(sc, html) {
+    if (html) {
+      const line = (label, x) => `${label} ${esc(x.note)} <span class="r-sub">${esc(x.family)}</span>`;
+      return `${line('탑 노트', sc.top)}<br>${line('베이스 노트', sc.base)}`;
+    }
+    return `탑 노트 ${sc.top.note} → 베이스 노트 ${sc.base.note}`;
+  }
+
+  // 선택기 값이 비어 있으면 성별 기본 범위를 쓴다
+  function heightRange(gid, o) {
+    const [dLo, dHi] = D.heights[gid];
+    let lo = o.hMin ?? dLo;
+    let hi = o.hMax ?? dHi;
+    if (lo > hi) {
+      if (o.hMin != null && o.hMax == null) hi = lo + 10;
+      else if (o.hMax != null && o.hMin == null) lo = hi - 10;
+      else [lo, hi] = [hi, lo];
+    }
+    return [lo, hi];
+  }
+
+  // 포지션에 맞는 BDSM 성향 3개를 높은 퍼센트 순으로
+  function rollBdsm(p) {
+    const side = p.nsfwPos.side;
+    const bySide = (s) => D.bdsmRoles.filter((r) => r.side === s);
+    const first = side === 'switch' ? [pick(bySide('dom')), pick(bySide('sub'))] : [pick(bySide(side))];
+    const pool = D.bdsmRoles.filter((r) => !first.includes(r) && (r.side === 'any' || r.side === side));
+    const roles = [...first, ...pickN(pool, 3 - first.length)];
+    let pct = randInt(82, 99);
+    return roles.map((r) => {
+      const out = { ko: r.ko, rope: !!r.rope, pct };
+      pct = Math.max(30, pct - randInt(6, 20));
+      return out;
+    });
   }
 
   const ROLL = {
     gender: (p, o) => (o.gender === 'random' ? pick(D.genders) : D.genders.find((g) => g.id === o.gender)),
     nation: (p, o) => (o.nation === 'random' ? pick(Object.keys(D.nations)) : o.nation),
+    heritage: (p, o) => rollHeritage(p, o),
     age: (p, o) => randInt(o.min, o.max),
     name: (p) => rollName(p),
-    height: (p) => randInt(...D.heights[p.gender.id]),
+    height: (p, o) => randInt(...heightRange(p.gender.id, o)),
     body: (p) => pick(D.bodies.filter((x) => fitsGender(x, p.gender.id))),
     job: () => pick(D.jobs),
-    mbti: () => ['EI', 'SN', 'TF', 'JP'].map((s) => s[rand(2)]).join(''),
 
     hairColor: (p, o) => rollColor(D.hairColors, o),
     hairExtra: (p, o) => {
@@ -129,7 +228,6 @@
       return { ko: '오드아이', odd: true, colors: [a, rollColor(D.eyeColors, o, a.ko)] };
     },
     eyeShape: () => pick(D.eyeShapes),
-    eyebrow: () => pick(D.eyebrows),
     impression: () => pick(D.impressions),
     skin: () => pick(D.skins),
     marks: () => pickN(D.marks, randInt(1, 2)),
@@ -148,25 +246,37 @@
     dislikes: (p) => pickN(D.dislikes, 2, p.likes || []),
     hobbies: () => pickN(D.hobbies, 2),
     habit: () => pick(D.habits),
-    scent: () => pick(D.scents),
+    scent: () => rollScent(),
     weakness: () => pick(D.weaknesses),
 
     family: () => pick(D.families),
     trauma: () => pick(D.traumas),
     secret: () => pick(D.secrets),
     love: () => pick(D.loves),
+    attachment: () => pick(D.attachments),
 
-    nsfwRole: () => pick(D.nsfwRoles),
+    nsfwPos: () => pick(D.bdsmPositions),
+    nsfwTop: (p) => rollBdsm(p),
     nsfwStyle: () => pick(D.nsfwStyles),
-    nsfwSpot: () => pickN(D.nsfwSpots, 2).join(', '),
-    nsfwPref: () => pick(D.nsfwPrefs),
+    nsfwPlays: () => pickN(D.nsfwPlays, 2),
+    nsfwSpot: () => pickN(D.nsfwSpots, 2).map(textOf),
+    // 선호 플레이·성향과 겹치는 비선호 플레이는 뽑지 않는다
+    nsfwLimit: (p) => {
+      const used = p.nsfwPlays.map((x) => x.tag).filter(Boolean);
+      if (p.nsfwTop.some((r) => r.rope)) used.push('rope');
+      return pick(D.nsfwLimits.filter((x) => !used.includes(x.tag)));
+    },
   };
 
   // 어떤 항목을 다시 뽑을 때 함께 바뀌어야 하는 항목
   const DEPENDS = {
     gender: ['name', 'height', 'body', 'fashion'],
-    nation: ['name'],
+    nation: ['heritage'],
+    heritage: ['name'],
     hairLen: ['hairStyle'],
+    nsfwPos: ['nsfwTop', 'nsfwLimit'],
+    nsfwTop: ['nsfwLimit'],
+    nsfwPlays: ['nsfwLimit'],
   };
 
   function rollPersona(o) {
@@ -177,20 +287,24 @@
 
   function rerollKeys(p, keys, o) {
     const queue = [];
-    keys.forEach((k) => {
+    const add = (k) => {
       queue.push(k);
-      (DEPENDS[k] || []).forEach((d) => queue.push(d));
-    });
-    [...new Set(queue)].forEach((k) => { p[k] = ROLL[k](p, o); });
+      (DEPENDS[k] || []).forEach(add);
+    };
+    keys.forEach(add);
+    // 원래 뽑는 순서대로 다시 뽑아야 의존 관계가 맞는다
+    const order = Object.keys(ROLL);
+    [...new Set(queue)].sort((a, b) => order.indexOf(a) - order.indexOf(b))
+      .forEach((k) => { p[k] = ROLL[k](p, o); });
   }
 
   /* ---------- sections (receipt + markdown 공용) ---------- */
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const list = (arr) => arr.map(textOf).join(', ');
 
   // 색 항목: 텍스트용 / 영수증 HTML용 (글자를 해당 색으로)
   const colorText = (c) => `${c.ko} ${c.code}`;
-  const colorHtml = (c) =>
-    `<span class="swatch${isLight(c.code) ? ' is-light' : ''}" style="color:${c.code}">${esc(c.ko)} ${c.code}</span>`;
+  const colorHtml = (c) => `<span class="swatch" style="color:${c.code}">${esc(c.ko)} ${c.code}</span>`;
 
   function hairText(p, html) {
     const fmt = html ? colorHtml : colorText;
@@ -205,81 +319,100 @@
     return `${p.eyeColor.ko} (${p.eyeColor.colors.map(fmt).join(' / ')})`;
   }
 
+  // id: 선택기에서 쓰는 항목 id, keys: 클릭 시 다시 뽑을 값
   const SECTIONS = [
     {
-      en: 'BASIC', ko: '기본 정보',
+      id: 'basic', en: 'BASIC', ko: '기본 정보',
       rows: [
-        { label: '성별', keys: ['gender'], v: (p) => p.gender.ko },
-        { label: '나이', keys: ['age'], v: (p) => `${p.age}세` },
-        { label: '국적', keys: ['nation'], v: (p) => D.nations[p.nation].ko },
-        { label: '키·체형', keys: ['height', 'body'], v: (p) => `${p.height}cm · ${p.body.ko}` },
-        { label: '직업', keys: ['job'], v: (p) => p.job },
-        { label: 'MBTI', keys: ['mbti'], v: (p) => p.mbti },
+        { id: 'gender', label: '성별', keys: ['gender'], v: (p) => p.gender.ko },
+        { id: 'age', label: '나이', keys: ['age'], v: (p) => `${p.age}세` },
+        { id: 'nation', label: '국적', keys: ['nation'], v: (p) => nationText(p) },
+        { id: 'height', label: '키·체형', keys: ['height', 'body'], v: (p) => `${p.height}cm · ${p.body.ko}` },
+        { id: 'job', label: '직업', keys: ['job'], v: (p) => p.job },
       ],
     },
     {
-      en: 'APPEARANCE', ko: '외형',
+      id: 'look', en: 'APPEARANCE', ko: '외형',
       rows: [
-        { label: '머리색', keys: ['hairColor', 'hairExtra'], v: (p) => hairText(p), html: (p) => hairText(p, true) },
-        { label: '앞머리', keys: ['bangs'], v: (p) => p.bangs.ko },
-        { label: '뒷머리', keys: ['hairLen'], v: (p) => `${p.hairLen.ko} · ${p.hairStyle.ko}` },
-        { label: '눈동자', keys: ['eyeColor'], v: (p) => eyeText(p), html: (p) => eyeText(p, true) },
-        { label: '눈매', keys: ['eyeShape'], v: (p) => p.eyeShape.ko },
-        { label: '눈썹', keys: ['eyebrow'], v: (p) => p.eyebrow.ko },
-        { label: '인상', keys: ['impression'], v: (p) => `${p.impression.ko} 인상` },
-        { label: '피부', keys: ['skin'], v: (p) => p.skin.ko },
-        { label: '특징', keys: ['marks'], v: (p) => list(p.marks) },
-        { label: '스타일', keys: ['fashion'], v: (p) => p.fashion.ko },
-        { label: '목소리', keys: ['voice'], v: (p) => p.voice },
+        { id: 'hairColor', label: '머리색', keys: ['hairColor', 'hairExtra'], v: (p) => hairText(p), html: (p) => hairText(p, true) },
+        { id: 'hair', label: '헤어스타일', keys: ['bangs', 'hairLen'], v: (p) => `${p.bangs.ko} + ${p.hairLen.ko} ${p.hairStyle.ko}` },
+        { id: 'eyeColor', label: '눈동자', keys: ['eyeColor'], v: (p) => eyeText(p), html: (p) => eyeText(p, true) },
+        { id: 'eyeShape', label: '눈매', keys: ['eyeShape'], v: (p) => p.eyeShape.ko },
+        { id: 'impression', label: '인상', keys: ['impression'], v: (p) => `${p.impression.ko} 인상` },
+        { id: 'skin', label: '피부', keys: ['skin'], v: (p) => p.skin.ko },
+        { id: 'marks', label: '특징', keys: ['marks'], v: (p) => list(p.marks) },
+        { id: 'fashion', label: '스타일', keys: ['fashion'], v: (p) => p.fashion.ko },
+        { id: 'voice', label: '목소리', keys: ['voice'], v: (p) => p.voice },
       ],
     },
     {
-      en: 'PERSONALITY', ko: '성격',
+      id: 'mind', en: 'PERSONALITY', ko: '성격',
       rows: [
-        { label: '키워드', keys: ['traits'], v: (p) => p.traits.map((t) => `#${t}`).join(' ') },
-        { label: '겉과 속', keys: ['gap'], v: (p) => p.gap },
-        { label: '가치관', keys: ['values'], v: (p) => p.values },
-        { label: '말투', keys: ['speech'], v: (p) => p.speech },
+        { id: 'traits', label: '키워드', keys: ['traits'], v: (p) => p.traits.map((t) => `#${t}`).join(' ') },
+        { id: 'gap', label: '겉과 속', keys: ['gap'], v: (p) => p.gap },
+        { id: 'values', label: '가치관', keys: ['values'], v: (p) => p.values },
+        { id: 'speech', label: '말투', keys: ['speech'], v: (p) => p.speech },
       ],
     },
     {
-      en: 'TASTE', ko: '취향 · 습관',
+      id: 'taste', en: 'TASTE', ko: '취향 · 습관',
       rows: [
-        { label: '호(好)', keys: ['likes'], v: (p) => list(p.likes) },
-        { label: '불호(不好)', keys: ['dislikes'], v: (p) => list(p.dislikes) },
-        { label: '취미', keys: ['hobbies'], v: (p) => list(p.hobbies) },
-        { label: '습관', keys: ['habit'], v: (p) => p.habit },
-        { label: '체향', keys: ['scent'], v: (p) => p.scent },
-        { label: '약점', keys: ['weakness'], v: (p) => p.weakness },
+        { id: 'likes', label: '호(好)', keys: ['likes'], v: (p) => list(p.likes) },
+        { id: 'dislikes', label: '불호(不好)', keys: ['dislikes'], v: (p) => list(p.dislikes) },
+        { id: 'hobbies', label: '취미', keys: ['hobbies'], v: (p) => list(p.hobbies) },
+        { id: 'habit', label: '습관', keys: ['habit'], v: (p) => p.habit },
+        { id: 'scent', label: '체향', keys: ['scent'], v: (p) => scentText(p.scent), html: (p) => scentText(p.scent, true) },
+        { id: 'weakness', label: '약점', keys: ['weakness'], v: (p) => p.weakness },
       ],
     },
     {
-      en: 'BACKGROUND', ko: '배경',
+      id: 'story', en: 'BACKGROUND', ko: '배경',
       rows: [
-        { label: '가족관계', keys: ['family'], v: (p) => p.family },
-        { label: '트라우마', keys: ['trauma'], v: (p) => p.trauma },
-        { label: '비밀', keys: ['secret'], v: (p) => p.secret },
-        { label: '연애관', keys: ['love'], v: (p) => p.love },
+        { id: 'family', label: '가족관계', keys: ['family'], v: (p) => p.family },
+        { id: 'trauma', label: '트라우마', keys: ['trauma'], v: (p) => p.trauma },
+        { id: 'secret', label: '비밀', keys: ['secret'], v: (p) => p.secret },
+        { id: 'love', label: '연애관', keys: ['love'], v: (p) => p.love },
+        { id: 'attachment', label: '애착 유형', keys: ['attachment'], v: (p) => p.attachment },
       ],
     },
     {
-      en: 'AFTER DARK', ko: 'NSFW', only: 'nsfw',
+      id: 'nsfw', en: 'INTIMATE PREFERENCE', ko: 'NSFW',
       rows: [
-        { label: '성향', keys: ['nsfwRole'], v: (p) => p.nsfwRole },
-        { label: '스타일', keys: ['nsfwStyle'], v: (p) => p.nsfwStyle },
-        { label: '민감한 곳', keys: ['nsfwSpot'], v: (p) => p.nsfwSpot },
-        { label: '선호', keys: ['nsfwPref'], v: (p) => p.nsfwPref },
+        { id: 'nsfwPos', label: '포지션', keys: ['nsfwPos'], v: (p) => p.nsfwPos.ko },
+        {
+          id: 'nsfwTop', label: '성향 결과', keys: ['nsfwTop'],
+          v: (p) => p.nsfwTop.map((r) => `${r.ko} ${r.pct}%`).join(', '),
+          html: (p) => p.nsfwTop.map((r) => `${esc(r.ko)} ${r.pct}%`).join('<br>'),
+        },
+        { id: 'nsfwStyle', label: '스타일', keys: ['nsfwStyle'], v: (p) => p.nsfwStyle },
+        { id: 'nsfwPlays', label: '선호 플레이', keys: ['nsfwPlays'], v: (p) => list(p.nsfwPlays) },
+        { id: 'nsfwLimit', label: '비선호 플레이', keys: ['nsfwLimit'], v: (p) => p.nsfwLimit.ko },
+        { id: 'nsfwSpot', label: '민감한 곳', keys: ['nsfwSpot'], v: (p) => p.nsfwSpot.join(', ') },
       ],
     },
   ];
 
-  const visibleSections = (o) => SECTIONS.filter((s) => !s.only || o[s.only]);
+  const ALL_ROWS = SECTIONS.flatMap((s) => s.rows.map((r) => r.id));
+  // 기본값: NSFW만 빼고 전부 포함
+  const DEFAULT_HIDDEN = SECTIONS.find((s) => s.id === 'nsfw').rows.map((r) => r.id);
 
-  const summaryLine = (p) =>
-    `${D.nations[p.nation].ko} · ${p.gender.ko} · ${p.age}세 · ${p.job}`;
+  const visibleSections = (o) => SECTIONS
+    .map((s) => ({ ...s, rows: s.rows.filter((r) => !o.hidden.has(r.id)) }))
+    .filter((s) => s.rows.length);
+
+  function summaryLine(p, o, withTheme) {
+    const show = (id) => !o.hidden.has(id);
+    return [
+      show('nation') && nationText(p),
+      show('gender') && p.gender.ko,
+      show('age') && `${p.age}세`,
+      show('job') && p.job,
+      withTheme && `테마색 ${themeColor(p)}`,
+    ].filter(Boolean).join(' · ');
+  }
 
   function toMarkdown(p, o) {
-    const out = [`# ${p.name.ko} (${p.name.en})`, '', `> ${summaryLine(p)}`, ''];
+    const out = [`# ${p.name.ko} (${p.name.en})`, '', `> ${summaryLine(p, o, true)}`, ''];
     visibleSections(o).forEach((s) => {
       out.push(`## ${s.ko}`);
       s.rows.forEach((r) => out.push(`- ${r.label}: ${r.v(p)}`));
@@ -306,8 +439,8 @@
   }
 
   // 나이가 많거나 성숙한 인상이면 girl/boy 대신 mature female/male
-  function genderTag(p) {
-    const mature = p.age >= 30 || p.impression.mature;
+  function genderTag(p, o) {
+    const mature = p.age >= 30 || (p.impression.mature && !o.hidden.has('impression'));
     if (mature && p.gender.id !== 'nonbinary') return `mature ${p.gender.id}`;
     return p.gender.tag;
   }
@@ -318,28 +451,88 @@
     return `heterochromia, ${e.colors[0].en} eyes, ${e.colors[1].en} eyes`;
   }
 
-  function buildPrompt(p, x) {
+  // 영수증에서 뺀 항목은 프롬프트에서도 뺀다 (성별은 항상 포함)
+  function buildPrompt(p, x, o) {
+    const on = (id, ...tags) => (o.hidden.has(id) ? [] : tags);
     return [
       {
         title: '외형',
         text: joinTags([
-          genderTag(p),
-          `${p.hairLen.len} ${p.hairColor.en} hair`, p.hairLen.cut, p.hairStyle.tag, p.hairExtra.tag, p.bangs.tag,
-          eyeTags(p), p.eyeShape.tag, p.eyebrow.tag,
-          p.skin.tag, p.body.tag, heightTag(p),
-          ...p.marks.map((m) => m.tag),
+          genderTag(p, o),
+          ...on('hairColor', `${o.hidden.has('hair') ? '' : `${p.hairLen.len} `}${p.hairColor.en} hair`),
+          ...on('hair', p.hairLen.cut, p.hairStyle.tag),
+          ...on('hairColor', p.hairExtra.tag),
+          ...on('hair', p.bangs.tag),
+          ...on('eyeColor', eyeTags(p)),
+          ...on('eyeShape', p.eyeShape.tag),
+          ...on('skin', p.skin.tag),
+          ...on('height', p.body.tag, heightTag(p)),
+          ...on('marks', ...p.marks.map((m) => m.tag)),
         ]),
       },
       { title: '표정', text: joinTags(x.expression) },
-      { title: '의상', text: p.fashion.tag },
-    ];
+      { title: '의상', text: joinTags(on('fashion', p.fashion.tag)) },
+    ].filter((s) => s.text);
   }
 
   // 전체 복사는 NovelAI에 바로 붙여넣을 수 있게 한 줄로
   const promptToText = (secs) => joinTags(secs.map((s) => s.text));
 
-  /* ---------- state ---------- */
-  const state = { persona: null, extras: null, order: 0, time: null };
+  /* ---------- state & options ---------- */
+  const state = { persona: null, extras: null, order: 0, auth: 0, time: null };
+  let hidden = new Set(DEFAULT_HIDDEN);
+
+  function readOptions() {
+    const minEl = $('#ageMin');
+    const maxEl = $('#ageMax');
+    let min = clamp(parseInt(minEl.value, 10) || AGE_MIN, AGE_MIN, AGE_MAX);
+    let max = clamp(parseInt(maxEl.value, 10) || AGE_MAX, AGE_MIN, AGE_MAX);
+    if (min > max) [min, max] = [max, min];
+    minEl.value = min;
+    maxEl.value = max;
+    const cm = (el) => {
+      const v = parseInt(el.value, 10);
+      if (Number.isNaN(v)) { el.value = ''; return null; }
+      el.value = clamp(v, HEIGHT_MIN, HEIGHT_MAX);
+      return +el.value;
+    };
+    return {
+      gender: $('input[name="gender"]:checked').value,
+      nation: $('#nation').value,
+      blood: $('#blood').value,
+      min,
+      max,
+      hMin: cm($('#heightMin')),
+      hMax: cm($('#heightMax')),
+      fantasy: $('#optFantasy').checked,
+      prompt: $('#optPrompt').checked,
+      hidden,
+    };
+  }
+
+  function saveOptions() {
+    const o = readOptions();
+    try {
+      localStorage.setItem(OPTS_KEY, JSON.stringify({ ...o, hidden: [...o.hidden] }));
+    } catch (e) { /* noop */ }
+  }
+
+  function loadOptions() {
+    let o = null;
+    try { o = JSON.parse(localStorage.getItem(OPTS_KEY)); } catch (e) { /* noop */ }
+    if (!o) return;
+    const g = $(`input[name="gender"][value="${o.gender}"]`);
+    if (g) g.checked = true;
+    if (o.nation && (o.nation === 'random' || D.nations[o.nation])) $('#nation').value = o.nation;
+    if (['random', 'single', 'mixed', 'heritage'].includes(o.blood)) $('#blood').value = o.blood;
+    if (o.min) $('#ageMin').value = o.min;
+    if (o.max) $('#ageMax').value = o.max;
+    $('#heightMin').value = o.hMin ?? '';
+    $('#heightMax').value = o.hMax ?? '';
+    if (typeof o.fantasy === 'boolean') $('#optFantasy').checked = o.fantasy;
+    if (typeof o.prompt === 'boolean') $('#optPrompt').checked = o.prompt;
+    if (Array.isArray(o.hidden)) hidden = new Set(o.hidden.filter((id) => ALL_ROWS.includes(id)));
+  }
 
   function save() {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* noop */ }
@@ -351,21 +544,63 @@
     } catch (e) { /* noop */ }
   }
 
+  /* ---------- item picker (왼쪽 선택기) ---------- */
+  function renderPicker() {
+    $('#itemPicker').innerHTML = SECTIONS.map((s) => `
+      <div class="pick-group" data-group="${s.id}">
+        <div class="pick-head">
+          <label class="check"><input type="checkbox" data-sec="${s.id}"><span>${esc(s.ko)}</span></label>
+          <button class="pick-toggle" type="button" data-expand="${s.id}" aria-expanded="false">
+            <span class="pick-count"></span><span class="chev" aria-hidden="true">▾</span>
+          </button>
+        </div>
+        <div class="pick-rows" hidden>
+          ${s.rows.map((r) => `<label class="chip"><input type="checkbox" data-rowid="${r.id}"><span>${esc(r.label)}</span></label>`).join('')}
+        </div>
+      </div>`).join('');
+    syncPicker();
+  }
+
+  function syncPicker() {
+    SECTIONS.forEach((s) => {
+      const group = $(`[data-group="${s.id}"]`);
+      const on = s.rows.filter((r) => !hidden.has(r.id)).length;
+      s.rows.forEach((r) => { $(`[data-rowid="${r.id}"]`, group).checked = !hidden.has(r.id); });
+      const box = $(`[data-sec="${s.id}"]`, group);
+      box.checked = on === s.rows.length;
+      box.indeterminate = on > 0 && on < s.rows.length;
+      $('.pick-count', group).textContent = `${on}/${s.rows.length}`;
+    });
+  }
+
+  function onPickerChange(e) {
+    const t = e.target;
+    if (t.dataset.rowid) {
+      if (t.checked) hidden.delete(t.dataset.rowid); else hidden.add(t.dataset.rowid);
+    } else if (t.dataset.sec) {
+      SECTIONS.find((s) => s.id === t.dataset.sec).rows
+        .forEach((r) => { if (t.checked) hidden.delete(r.id); else hidden.add(r.id); });
+    } else {
+      return;
+    }
+    syncPicker();
+    saveOptions();
+    renderAll();
+  }
+
   /* ---------- rendering ---------- */
-  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const fmtCount = (str) => Array.from(str).length.toLocaleString('ko-KR');
   const pad = (n, l = 2) => String(n).padStart(l, '0');
-
-  const rule = (type) =>
-    `<div class="rule ${type}" aria-hidden="true">${(type === 'dots' ? '•' : '-').repeat(type === 'dots' ? 120 : 80)}</div>`;
+  const rule = (type) => `<div class="rule ${type}" aria-hidden="true"></div>`;
 
   function barcode(seed) {
-    let s = seed * 9301 + 49297;
+    let s = seed % 233280;
     const bars = [];
-    for (let i = 0; i < 46; i++) {
+    for (let i = 0; i < 72; i++) {
       s = (s * 9301 + 49297) % 233280;
-      const w = 1 + Math.floor((s / 233280) * 3);
-      bars.push(`<i style="width:${w}px;margin-right:${i % 3 === 0 ? 2 : 1}px"></i>`);
+      const w = 1 + Math.floor((s / 233280) * 4);
+      const gap = 1 + ((s >> 3) % 3);
+      bars.push(`<i style="width:${w}px;margin-right:${gap}px"></i>`);
     }
     return `<div class="barcode" aria-hidden="true">${bars.join('')}</div>`;
   }
@@ -375,6 +610,8 @@
     return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
   }
 
+  const kv = (k, v) => `<div class="r-kv"><span>${k}</span><span>${v}</span></div>`;
+
   function renderReceipt(o) {
     const el = $('#receipt');
     const p = state.persona;
@@ -382,22 +619,25 @@
     if (!p) {
       el.innerHTML = `<div class="r-body">
         <p class="r-kicker">PERSONA RECEIPT</p>
-        ${rule('dots')}
+        ${rule('dash')}
         <div class="r-empty">
           <p class="big">NO ORDER YET</p>
-          <p class="r-small">왼쪽에서 조건을 고르고<br>[페르소나 생성]을 눌러주세요.</p>
+          <p>왼쪽에서 조건을 고르고<br>[페르소나 생성]을 눌러주세요.</p>
         </div>
-        ${rule('dots')}
-        <p class="r-center r-small">Thank you for creating with us.</p>
+        ${rule('dash')}
+        <p class="r-center">THANK YOU FOR VISITING!</p>
       </div>`;
       return;
     }
 
     const secs = visibleSections(o);
-    const traitCount = secs.reduce((n, s) => n + s.rows.length, 0);
+    const rows = secs.flatMap((s) => s.rows);
+    const theme = themeColor(p);
+    const total = Array.from(toMarkdown(p, o)).length;
     let rowIndex = 0;
+
     const sectionHtml = secs.map((s, i) => {
-      const rows = s.rows.map((r) => {
+      const rowHtml = s.rows.map((r) => {
         const idx = rowIndex++;
         return `<div class="r-row" role="button" tabindex="0" data-row="${idx}" title="이 항목만 다시 뽑기">
           <span class="r-re" data-html2canvas-ignore aria-hidden="true">↻</span>
@@ -406,32 +646,38 @@
         </div>`;
       }).join('');
       return `<div class="r-sec-head"><span class="en">${pad(i + 1)} ${s.en}</span><span class="ko">${esc(s.ko)}</span></div>
-        ${rows}
-        ${rule('dots')}`;
+        ${rowHtml}
+        ${rule('dash')}`;
     }).join('');
 
     el.innerHTML = `<div class="r-body">
       <p class="r-kicker">PERSONA RECEIPT</p>
       <h1 class="r-name rr" role="button" tabindex="0" data-row="name" title="이름만 다시 뽑기">${esc(p.name.ko)}</h1>
       <p class="r-roman">${esc(p.name.en)}</p>
-      <p class="r-meta">${esc(summaryLine(p))}</p>
-      <div class="r-info"><span>ORDER# ${pad(state.order, 4)}</span><span>${fmtTime(state.time)}</span></div>
-      ${rule('dots')}
-      <div class="r-sec-head"><span class="en">ITEM</span><span class="ko">DETAIL</span></div>
+      <p class="r-meta">${esc(summaryLine(p, o))}</p>
+      <div class="r-order">
+        <span>ORDER# <b style="color:${theme}">${theme.slice(1)}</b></span>
+        <span>${fmtTime(state.time)}</span>
+      </div>
+      ${rule('dash')}
+      <div class="r-sec-head"><span class="en">QTY ITEM</span><span class="ko">DETAIL</span></div>
       ${rule('dash')}
       ${sectionHtml}
-      <div class="r-total"><span>TOTAL</span><span>${traitCount} ×</span></div>
+      ${kv('ITEM COUNT:', rows.length)}
+      ${kv('TOTAL:', `${total.toLocaleString('en-US')}.00`)}
       ${rule('dash')}
-      ${barcode(state.order)}
-      <p class="barcode-num">${pad(state.order, 4)} ${String(state.time).slice(-8)}</p>
-      <p class="r-center r-dup">***ORIGINAL PERSONA***</p>
-      <p class="r-center r-small">KEEP FOR YOUR ROLEPLAY</p>
-      ${rule('dots')}
-      <p class="r-center r-small">Thank you for creating with us.</p>
+      <div class="r-card">
+        <p>CARD #: **** **** **** ${pad(state.order, 4)}</p>
+        <p>AUTH CODE: ${state.auth}</p>
+        <p>CARDHOLDER: ${esc(p.name.en.toUpperCase())}</p>
+      </div>
+      <p class="r-center r-thanks">THANK YOU FOR VISITING!</p>
+      ${barcode(state.order * 7 + state.auth)}
+      <p class="r-center barcode-num">${pad(state.order, 4)} ${String(state.time).slice(-8)}</p>
     </div>`;
 
     // row index → section row 매핑 저장
-    el._rows = secs.flatMap((s) => s.rows);
+    el._rows = rows;
   }
 
   function renderPrompt(o) {
@@ -441,7 +687,7 @@
       return;
     }
     if (!state.extras) state.extras = rollExtras();
-    const secs = buildPrompt(state.persona, state.extras);
+    const secs = buildPrompt(state.persona, state.extras, o);
     $('#promptBody').innerHTML = secs.map((s, i) => `
       <div class="p-sec">
         <div class="p-sec-head"><span>${esc(s.title)}</span><button class="p-copy" type="button" data-psec="${i}">복사</button></div>
@@ -500,8 +746,10 @@
     state.persona = rollPersona(o);
     state.extras = o.prompt ? rollExtras() : null;
     state.order = randInt(1, 9999);
+    state.auth = randInt(100000, 999999);
     state.time = Date.now();
     save();
+    saveOptions();
     renderAll();
   }
 
@@ -550,16 +798,43 @@
 
   /* ---------- init ---------- */
   function init() {
+    dedupeNames();
     const sel = $('#nation');
     Object.entries(D.nations).forEach(([id, n]) => sel.add(new Option(n.ko, id)));
 
+    loadOptions();
+    renderPicker();
+
     $('#options').addEventListener('submit', (e) => { e.preventDefault(); generate(); });
-    $('#optNsfw').addEventListener('change', () => { save(); renderAll(); });
+    $('#options').addEventListener('change', (e) => {
+      if (e.target.closest('#itemPicker')) return;
+      saveOptions();
+    });
     $('#optPrompt').addEventListener('change', (e) => {
       if (!e.target.checked) { state.extras = null; save(); }
       renderAll();
     });
-    ['#ageMin', '#ageMax'].forEach((s) => $(s).addEventListener('change', readOptions));
+
+    $('#itemPicker').addEventListener('change', onPickerChange);
+    $('#itemPicker').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-expand]');
+      if (!b) return;
+      const rowsEl = $('.pick-rows', b.closest('.pick-group'));
+      rowsEl.hidden = !rowsEl.hidden;
+      b.setAttribute('aria-expanded', String(!rowsEl.hidden));
+    });
+    $('#pickAll').addEventListener('click', () => {
+      hidden = new Set();
+      syncPicker(); saveOptions(); renderAll();
+    });
+    $('#pickNone').addEventListener('click', () => {
+      hidden = new Set(ALL_ROWS);
+      syncPicker(); saveOptions(); renderAll();
+    });
+    $('#pickReset').addEventListener('click', () => {
+      hidden = new Set(DEFAULT_HIDDEN);
+      syncPicker(); saveOptions(); renderAll();
+    });
 
     $('#receipt').addEventListener('click', (e) => {
       const row = e.target.closest('[data-row]');

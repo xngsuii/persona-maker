@@ -10,7 +10,7 @@
     (function () {
       var t = null;
       try { t = localStorage.getItem('pr-theme'); } catch (e) {}
-      if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      if (t !== 'light' && t !== 'dark') t = 'dark'; // 기본은 다크 모드
       document.documentElement.dataset.theme = t;
     })();
   </script>
@@ -44,31 +44,59 @@
           </div>
         </fieldset>
 
-        <div class="field">
-          <label class="field-label" for="nation">국적</label>
-          <select id="nation" class="select">
-            <option value="random">랜덤</option>
-          </select>
-        </div>
+        <fieldset class="field">
+          <legend>국적 · 혈통</legend>
+          <div class="select-row">
+            <select id="nation" class="select" aria-label="국적">
+              <option value="random">국적 랜덤</option>
+            </select>
+            <select id="blood" class="select" aria-label="혈통">
+              <option value="random">혈통 랜덤</option>
+              <option value="single">단일</option>
+              <option value="mixed">혼혈</option>
+              <option value="heritage">OO계</option>
+            </select>
+          </div>
+        </fieldset>
 
         <fieldset class="field">
-          <legend>나이 범위</legend>
+          <legend>나이 범위 <span class="legend-sub">성인만 · 20–60세</span></legend>
           <div class="range-row">
             <input id="ageMin" class="num" type="number" min="20" max="60" value="20" inputmode="numeric" aria-label="최소 나이">
             <span>~</span>
             <input id="ageMax" class="num" type="number" min="20" max="60" value="35" inputmode="numeric" aria-label="최대 나이">
             <span class="muted">세</span>
           </div>
-          <p class="hint">성인 캐릭터만 생성해요 (20–60세)</p>
+        </fieldset>
+
+        <fieldset class="field">
+          <legend>키 범위 <span class="legend-sub">비우면 성별 기준</span></legend>
+          <div class="range-row">
+            <input id="heightMin" class="num" type="number" min="140" max="210" placeholder="자동" inputmode="numeric" aria-label="최소 키">
+            <span>~</span>
+            <input id="heightMax" class="num" type="number" min="140" max="210" placeholder="자동" inputmode="numeric" aria-label="최대 키">
+            <span class="muted">cm</span>
+          </div>
         </fieldset>
 
         <fieldset class="field">
           <legend>옵션</legend>
           <label class="check"><input id="optFantasy" type="checkbox" checked><span>판타지 머리색 · 눈동자색 포함</span></label>
-          <label class="check"><input id="optNsfw" type="checkbox"><span>NSFW 성향 포함</span></label>
           <label class="check"><input id="optPrompt" type="checkbox"><span>이미지 생성 프롬프트 함께 만들기</span></label>
-          <p class="hint">생성 후에 체크하면 현재 페르소나는 그대로 두고 프롬프트만 만들어요.</p>
+          <p class="hint">생성 후에 켜면 페르소나는 그대로 두고 프롬프트만 만들어요.</p>
         </fieldset>
+
+        <div class="field" role="group" aria-labelledby="pickTitle">
+          <div class="field-head">
+            <span id="pickTitle" class="field-label">포함할 항목</span>
+            <button id="pickReset" class="btn-mini" type="button" title="NSFW만 빼고 전부 선택">기본값</button>
+          </div>
+          <div id="itemPicker" class="picker"></div>
+          <div class="pick-actions">
+            <button id="pickAll" class="btn btn-small" type="button">전체 선택</button>
+            <button id="pickNone" class="btn btn-small" type="button">전체 해제</button>
+          </div>
+        </div>
 
         <button id="generate" class="btn btn-primary btn-block" type="submit">페르소나 생성</button>
       </form>
