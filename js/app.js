@@ -9,7 +9,7 @@
   const HEIGHT_MIN = 140;
   const HEIGHT_MAX = 210;
   // 국적 선택칸의 지역 구분 (선택 불가 제목)
-  const REGIONS = [['asia', '아시아'], ['americas', '아메리카'], ['europe', '유럽'], ['oceania', '오세아니아']];
+  const REGIONS = [['asia', '아시아'], ['americas', '아메리카'], ['europe', '유럽'], ['oceania', '오세아니아'], ['etc', '기타']];
 
   /* ---------- random helpers ---------- */
   const rand = (n) => Math.floor(Math.random() * n);
@@ -26,6 +26,18 @@
       [a[i], a[j]] = [a[j], a[i]];
     }
     return a;
+  }
+  // grp 가 같은 항목은 하나만 (입 크기, 음모 등)
+  function pickGrouped(arr, n) {
+    const out = [];
+    const used = new Set();
+    for (const x of shuffle(arr)) {
+      if (out.length >= n) break;
+      if (x.grp && used.has(x.grp)) continue;
+      out.push(x);
+      if (x.grp) used.add(x.grp);
+    }
+    return out;
   }
   const pickN = (arr, n, exclude = []) =>
     shuffle(arr.filter((x) => !exclude.includes(textOf(x)))).slice(0, n);
@@ -91,6 +103,10 @@
   // ~계: 성은 혈통 쪽, 이름은 국적 쪽 / 혼혈: 성과 이름을 두 나라에서 섞어서
   function rollName(p) {
     const n = D.nations[p.nation];
+    if (n.anyName) {
+      const src = pick(Object.keys(D.nations).filter((id) => !D.nations[id].anyName));
+      return rollName({ ...p, nation: src, heritage: null });
+    }
     const h = p.heritage;
     let surNation = n;
     let givenNation = n;
@@ -108,8 +124,13 @@
     const given = pick(own(givenNation) && givenNation.extra.given[gid]
       ? givenNation.extra.given[gid]
       : givenPool(givenNation, gid, p.gender.id === 'nonbinary'));
-    let sur = pick(own(surNation) ? surNation.extra.surnames : surNation.surnames);
-    if (!Array.isArray(sur)) sur = gid === 'female' ? sur.f : sur.m;
+    const pickSur = () => {
+      const x = pick(own(surNation) ? surNation.extra.surnames : surNation.surnames);
+      return Array.isArray(x) ? x : gid === 'female' ? x.f : x.m;
+    };
+    let sur = pickSur();
+    // 성과 이름이 같은 단어면 성을 다시 뽑는다 (예: 카메론 카메론)
+    for (let i = 0; i < 20 && sur[1].toLowerCase() === given[1].toLowerCase(); i++) sur = pickSur();
     // 성·이름이 같은 나라에서 나왔으면 그 나라의 표기 순서를, 섞였으면 국적의 순서를 따른다
     const base = givenNation.forceOrder ? givenNation : surNation === givenNation ? surNation : n;
     if (base.order === 'east') {
@@ -228,7 +249,7 @@
 
   // 같은 로마자 표기의 이름·성은 하나만 남긴다 (중성 이름이 우선). 키워드 목록도 중복 제거
   function dedupeNames() {
-    ['jobs', 'traits', 'likes', 'dislikes', 'hobbies', 'habits', 'weaknesses', 'families', 'traumas', 'secrets', 'loves']
+    ['jobs', 'traits', 'inners', 'voices', 'speeches', 'nsfwStyles', 'nsfwSpots', 'likes', 'dislikes', 'hobbies', 'habits', 'weaknesses', 'families', 'traumas', 'secrets', 'loves']
       .forEach((k) => { D[k] = [...new Set(D[k])]; });
     D.marks = D.marks.filter((m, i, arr) => arr.findIndex((x) => x.ko === m.ko) === i);
     const uniq = (arr, key, seen = new Set()) => arr.filter((x) => {
@@ -250,6 +271,7 @@
   // 혈통: 단일 / 혼혈(mixed) / ~계(heritage)
   function rollHeritage(p, o) {
     const n = D.nations[p.nation];
+    if (n.anyName) return null;
     let type = o.blood;
     if (type === 'random') {
       const r = Math.random();
@@ -261,7 +283,7 @@
       const idx = (n.subgroups || []).findIndex((x) => (r -= x.rate) < 0);
       return idx >= 0 ? { type: 'sub', idx } : null;
     }
-    return { type, other: pick(Object.keys(D.nations).filter((id) => id !== p.nation)) };
+    return { type, other: pick(Object.keys(D.nations).filter((id) => id !== p.nation && !D.nations[id].anyName)) };
   }
 
   function nationText(p) {
@@ -349,7 +371,7 @@
     eyeShape: () => pick(D.eyeShapes),
     impression: () => pick(D.impressions),
     skin: () => pick(D.skins),
-    marks: () => pickN(D.marks, randInt(1, 2)),
+    marks: () => pickGrouped(D.marks, randInt(1, 2)),
     fashion: (p) => {
       const f = pick(D.fashions.filter((x) => fitsGender(x, p.gender.id)));
       return { ko: f.ko, tag: f.tag.replace(/\{c\}/g, pick(D.clothColors)) };
@@ -357,6 +379,7 @@
     voice: () => pick(D.voices),
 
     traits: () => pickN(D.traits, 3),
+    inner: () => pick(D.inners),
     gap: () => pick(D.gaps),
     values: () => pick(D.values),
     speech: () => pick(D.speeches),
@@ -379,6 +402,11 @@
     nsfwStyle: () => pick(D.nsfwStyles),
     nsfwPlays: () => pickN(D.nsfwPlays, 2),
     nsfwSpot: () => pickN(D.nsfwSpots, 2).map(textOf),
+    // 논바이너리는 캐릭터마다 신체를 하나 정해서 섞이지 않게
+    nsfwBody: (p) => {
+      const anat = p.gender.id === 'female' ? 'f' : p.gender.id === 'male' ? 'm' : pick(['f', 'm']);
+      return pickGrouped(D.nsfwBodies.filter((x) => !x.anat || x.anat === anat), 2);
+    },
     // 선호 플레이·성향과 겹치는 비선호 플레이는 뽑지 않는다
     nsfwLimit: (p) => {
       const used = p.nsfwPlays.map((x) => x.tag).filter(Boolean);
@@ -389,7 +417,7 @@
 
   // 어떤 항목을 다시 뽑을 때 함께 바뀌어야 하는 항목
   const DEPENDS = {
-    gender: ['name', 'height', 'body', 'fashion'],
+    gender: ['name', 'height', 'body', 'fashion', 'nsfwBody'],
     nation: ['heritage'],
     heritage: ['name'],
     hairLen: ['hairStyle'],
@@ -468,6 +496,7 @@
       id: 'mind', en: 'PERSONALITY', ko: '성격',
       rows: [
         { id: 'traits', label: '키워드', keys: ['traits'], v: (p) => p.traits.map((t) => `#${t}`).join(' ') },
+        { id: 'inner', label: '내면', keys: ['inner'], v: (p) => p.inner },
         { id: 'gap', label: '겉과 속', keys: ['gap'], v: (p) => p.gap },
         { id: 'values', label: '가치관', keys: ['values'], v: (p) => p.values },
         { id: 'speech', label: '말투', keys: ['speech'], v: (p) => p.speech },
@@ -506,7 +535,8 @@
         { id: 'nsfwStyle', label: '스타일', keys: ['nsfwStyle'], v: (p) => p.nsfwStyle },
         { id: 'nsfwPlays', label: '선호 플레이', keys: ['nsfwPlays'], v: (p) => list(p.nsfwPlays) },
         { id: 'nsfwLimit', label: '비선호 플레이', keys: ['nsfwLimit'], v: (p) => p.nsfwLimit.ko },
-        { id: 'nsfwSpot', label: '민감한 곳', keys: ['nsfwSpot'], v: (p) => p.nsfwSpot.join(', ') },
+        { id: 'nsfwSpot', label: '성감대', keys: ['nsfwSpot'], v: (p) => p.nsfwSpot.join(', ') },
+        { id: 'nsfwBody', label: '신체 특이사항', keys: ['nsfwBody'], v: (p) => list(p.nsfwBody) },
       ],
     },
   ];
@@ -638,7 +668,7 @@
   function saveOptions() {
     const o = readOptions();
     try {
-      localStorage.setItem(OPTS_KEY, JSON.stringify({ ...o, hidden: [...o.hidden] }));
+      localStorage.setItem(OPTS_KEY, JSON.stringify({ ...o, hidden: [...o.hidden], known: ALL_ROWS }));
     } catch (e) { /* noop */ }
   }
 
@@ -659,7 +689,13 @@
     if (typeof o.patronymic === 'boolean') $('#optPatronymic').checked = o.patronymic;
     if (typeof o.hanja === 'boolean') $('#optHanja').checked = o.hanja;
     setPickerFolded(o.pickerFolded === true);
-    if (Array.isArray(o.hidden)) hidden = new Set(o.hidden.filter((id) => ALL_ROWS.includes(id)));
+    if (Array.isArray(o.hidden)) {
+      hidden = new Set(o.hidden.filter((id) => ALL_ROWS.includes(id)));
+      // 저장 이후에 새로 생긴 항목은 기본값을 따른다 (새 NSFW 항목은 숨김)
+      const known = Array.isArray(o.known) ? o.known
+        : ALL_ROWS.filter((id) => id !== 'nsfwBody'); // 항목 목록을 저장하기 전 버전
+      DEFAULT_HIDDEN.filter((id) => !known.includes(id)).forEach((id) => hidden.add(id));
+    }
   }
 
   /* ---------- item picker (왼쪽 선택기) ---------- */

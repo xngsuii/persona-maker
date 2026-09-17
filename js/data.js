@@ -24,6 +24,28 @@ const ANGLO = {
     ['킹', 'King'], ['라이언', 'Ryan'], ['스트라이더', 'Strider'], ['마이어스', 'Myers'], ['코린', 'Corin'],
     ['크롬웰', 'Cromwell'], ['니켈', 'Nickel'], ['퀸', 'Quinn'], ['와이즈먼', 'Wiseman'], ['레이크', 'Lake'],
     ['카메론', 'Cameron'], ['캠벨', 'Campbell'], ['하웰', 'Howell'], ['그린버그', 'Greenberg'],
+    ['챈들러', 'Chandler'], ['맥켄지', 'McKenzie'], ['도슨', 'Dawson'], ['피어스', 'Pierce'], ['몽고메리', 'Montgomery'],
+    ['랭커스터', 'Lancaster'], ['밴크로프트', 'Bancroft'], ['윈터스', 'Winters'], ['스털링', 'Sterling'], ['해밀턴', 'Hamilton'],
+    ['프레스턴', 'Preston'], ['버크', 'Burke'], ['플레처', 'Fletcher'], ['배니스터', 'Bannister'], ['채프먼', 'Chapman'],
+    ['브래들리', 'Bradley'], ['허드슨', 'Hudson'], ['맥스웰', 'Maxwell'], ['크로퍼드', 'Crawford'], ['더글러스', 'Douglas'],
+    ['헌터', 'Hunter'], ['피츠제럴드', 'Fitzgerald'], ['젠킨스', 'Jenkins'],
+    ['워커', 'Walker'], ['홀', 'Hall'], ['앨런', 'Allen'], ['영', 'Young'], ['라이트', 'Wright'],
+    ['스콧', 'Scott'], ['그린', 'Green'], ['베이커', 'Baker'], ['애덤스', 'Adams'], ['넬슨', 'Nelson'],
+    ['힐', 'Hill'], ['미첼', 'Mitchell'], ['로버츠', 'Roberts'], ['터너', 'Turner'], ['필립스', 'Phillips'],
+    ['에반스', 'Evans'], ['에드워즈', 'Edwards'], ['콜린스', 'Collins'], ['스튜어트', 'Stewart'], ['모리스', 'Morris'],
+    ['벨', 'Bell'], ['쿠퍼', 'Cooper'], ['하워드', 'Howard'], ['피터슨', 'Peterson'], ['그레이', 'Gray'],
+    ['왓슨', 'Watson'], ['우드', 'Wood'], ['반스', 'Barnes'], ['로스', 'Ross'], ['헨더슨', 'Henderson'],
+    ['콜먼', 'Coleman'], ['휴스', 'Hughes'], ['프라이스', 'Price'], ['러셀', 'Russell'], ['클라크', 'Clarke'],
+    ['로이드', 'Lloyd'], ['베일리', 'Bailey'], ['바커', 'Barker'], ['파커', 'Parker'], ['체임버스', 'Chambers'],
+    ['휘트모어', 'Whitmore'], ['킹슬리', 'Kingsley'], ['올드리지', 'Aldridge'], ['나이트', 'Knight'], ['폭스', 'Fox'],
+    ['하트', 'Hart'], ['레인', 'Lane'], ['웰스', 'Wells'], ['마시', 'Marsh'], ['헤일', 'Hale'],
+    ['리브스', 'Reeves'], ['그랜트', 'Grant'], ['서튼', 'Sutton'], ['해리슨', 'Harrison'], ['헌트', 'Hunt'],
+    ['크로우', 'Crowe'], ['리버스', 'Rivers'], ['폰테인', 'Fontaine'], ['셔먼', 'Sherman'], ['러벨', 'Lovell'],
+    ['클레어리', 'Cleary'], ['샌더슨', 'Sanderson'], ['에이블', 'Abel'], ['마이어', 'Meyer'], ['위버', 'Weaver'],
+    ['윌러드', 'Willard'], ['페리', 'Perry'], ['맥도웰', 'McDowell'],
+    ["워렌", "Warren"], ["커틀러", "Cutler"], ["샤프", "Sharp"], ["저드", "Judd"], ["파울러", "Fowler"],
+    ["하코트", "Harcourt"], ["워튼", "Wharton"], ["바클레이", "Barclay"], ["크로슬리", "Crossley"], ["케인", "Kane"],
+    ["푸트넘", "Putnam"], ["캐닝", "Canning"],
   ],
   male: [
     ['리암', 'Liam'], ['노아', 'Noah'], ['올리버', 'Oliver'], ['일라이저', 'Elijah'], ['로건', 'Logan'],
@@ -38,6 +60,27 @@ const ANGLO = {
     ['아론', 'Aaron'], ['아벨', 'Abel'], ['매그너스', 'Magnus'], ['아나킨', 'Anakin'], ['어빈', 'Irvin'],
     ['체스터', 'Chester'], ['제이크', 'Jake'], ['칼라일', 'Carlisle'], ['유진', 'Eugene'], ['클레이튼', 'Clayton'],
     ['행크', 'Hank'],
+    ['빈센트', 'Vincent'], ['제어드', 'Jared'], ['데미안', 'Damian'], ['콜', 'Cole'], ['아처', 'Archer'],
+    ['핀리', 'Finley'], ['실라스', 'Silas'], ['덱스터', 'Dexter'], ['마일스', 'Miles'], ['체이스', 'Chase'],
+    ['트레버', 'Trevor'], ['브로디', 'Brody'], ['캘빈', 'Calvin'], ['트리스탄', 'Tristan'], ['브렌던', 'Brendan'],
+    ['클리포드', 'Clifford'], ['하비', 'Harvey'], ['마커스', 'Marcus'], ['커티스', 'Curtis'], ['콘래드', 'Conrad'],
+    ['댈러스', 'Dallas'], ['에밋', 'Emmett'], ['스펜서', 'Spencer'], ['롤런드', 'Roland'], ['홀든', 'Holden'],
+    ['기디언', 'Gideon'], ['라이커', 'Ryker'], ['베켓', 'Beckett'],
+    ['데이비드', 'David'], ['매슈', 'Matthew'], ['앤드류', 'Andrew'], ['크리스토퍼', 'Christopher'], ['토머스', 'Thomas'],
+    ['에드워드', 'Edward'], ['로버트', 'Robert'], ['리처드', 'Richard'], ['애덤', 'Adam'], ['루크', 'Luke'],
+    ['해리', 'Harry'], ['피터', 'Peter'], ['폴', 'Paul'], ['패트릭', 'Patrick'], ['스티븐', 'Stephen'],
+    ['에이든', 'Aiden'], ['타일러', 'Tyler'], ['와이엇', 'Wyatt'], ['그레이슨', 'Grayson'], ['이스턴', 'Easton'],
+    ['에즈라', 'Ezra'], ['재스퍼', 'Jasper'], ['줄리언', 'Julian'], ['레오', 'Leo'], ['도미닉', 'Dominic'],
+    ['재비어', 'Xavier'], ['에이드리언', 'Adrian'], ['조나', 'Jonah'], ['애시턴', 'Ashton'], ['웨슬리', 'Wesley'],
+    ['케빈', 'Kevin'], ['브라이언', 'Brian'], ['저스틴', 'Justin'], ['에릭', 'Eric'], ['카일', 'Kyle'],
+    ['션', 'Sean'], ['이안', 'Ian'], ['앨런', 'Alan'], ['프랭크', 'Frank'], ['월터', 'Walter'],
+    ['앨버트', 'Albert'], ['프레드릭', 'Frederick'], ['루퍼트', 'Rupert'], ['앨리스터', 'Alistair'], ['그레이엄', 'Graham'],
+    ['레지널드', 'Reginald'], ['더스티', 'Dusty'], ['나이젤', 'Nigel'], ['마일로', 'Milo'], ['세드릭', 'Cedric'],
+    ['로저', 'Roger'], ['프레이저', 'Fraser'], ['네드', 'Ned'], ['테오', 'Theo'], ['필립', 'Philip'],
+    ['데이비', 'Davy'], ['가브리엘', 'Gabriel'], ['웨이드', 'Wade'], ['라파엘', 'Raphael'], ['루벤', 'Reuben'],
+    ['셰인', 'Shane'], ['제프', 'Jeff'], ['시드', 'Sid'], ['앨빈', 'Alvin'], ['에드거', 'Edgar'],
+    ['에이먼', 'Eamon'], ['엘리엇', 'Elliot'], ['제롬', 'Jerome'],
+    ["일라이", "Eli"], ["리온", "Leon"], ["토비아스", "Tobias"], ["레이먼드", "Raymond"],
   ],
   female: [
     ['올리비아', 'Olivia'], ['엠마', 'Emma'], ['샬럿', 'Charlotte'], ['다이애나', 'Diana'], ['아멜리아', 'Amelia'],
@@ -51,11 +94,37 @@ const ANGLO = {
     ['샤론', 'Sharon'], ['세이디', 'Sadie'], ['스테이시', 'Stacy'], ['에이프릴', 'April'], ['에반젤린', 'Evangeline'],
     ['이졸데', 'Isolde'], ['일레인', 'Elaine'], ['클라리스', 'Clarice'], ['트리샤', 'Tricia'], ['헤일리', 'Hailey'],
     ['헨리에타', 'Henrietta'], ['해리엇', 'Harriet'], ['헤이즐', 'Hazel'], ['프리실라', 'Priscilla'],
+    ['오필리아', 'Ophelia'], ['세레나', 'Serena'], ['다프네', 'Daphne'], ['코델리아', 'Cordelia'], ['베로니카', 'Veronica'],
+    ['시에나', 'Sienna'], ['매들린', 'Madeline'], ['멜로디', 'Melody'], ['바네사', 'Vanessa'], ['실비아', 'Sylvia'],
+    ['조세핀', 'Josephine'], ['프레야', 'Freya'], ['셀레나', 'Selena'], ['나오미', 'Naomi'], ['에디스', 'Edith'],
+    ['휘트니', 'Whitney'], ['로즈메리', 'Rosemary'], ['카르멘', 'Carmen'], ['베서니', 'Bethany'], ['로레타', 'Loretta'],
+    ['제네비에브', 'Genevieve'], ['세라피나', 'Seraphina'], ['아라벨라', 'Arabella'], ['달리아', 'Dahlia'], ['펠리시티', 'Felicity'],
+    ['잉그리드', 'Ingrid'], ['마야', 'Maya'], ['캐롤라인', 'Caroline'],
+    ['그레이스', 'Grace'], ['해나', 'Hannah'], ['애나', 'Anna'], ['루시', 'Lucy'], ['앨리스', 'Alice'],
+    ['조이', 'Zoe'], ['나탈리', 'Natalie'], ['레이첼', 'Rachel'], ['제시카', 'Jessica'], ['제니퍼', 'Jennifer'],
+    ['애슐리', 'Ashley'], ['로런', 'Lauren'], ['메건', 'Megan'], ['에이미', 'Amy'], ['빅토리아', 'Victoria'],
+    ['캐서린', 'Catherine'], ['헬렌', 'Helen'], ['로라', 'Laura'], ['메리', 'Mary'], ['앤', 'Anne'],
+    ['제인', 'Jane'], ['소피', 'Sophie'], ['리디아', 'Lydia'], ['루비', 'Ruby'], ['몰리', 'Molly'],
+    ['포피', 'Poppy'], ['데이지', 'Daisy'], ['바이올렛', 'Violet'], ['아이리스', 'Iris'], ['윌로', 'Willow'],
+    ['오로라', 'Aurora'], ['노바', 'Nova'], ['페이지', 'Paige'], ['케일라', 'Kayla'], ['라일라', 'Lila'],
+    ['테사', 'Tessa'], ['일라이자', 'Eliza'], ['세실리아', 'Cecilia'], ['애덜라인', 'Adeline'], ['마틸다', 'Matilda'],
+    ['줄리엣', 'Juliet'], ['로즈', 'Rose'], ['헤더', 'Heather'], ['호프', 'Hope'], ['페이스', 'Faith'],
+    ['라리사', 'Larissa'], ['테레사', 'Teresa'], ['록산느', 'Roxanne'], ['조앤', 'Joanne'], ['엘렌', 'Ellen'],
+    ['로레나', 'Lorena'], ['보니', 'Bonnie'], ['모니카', 'Monica'], ['신시아', 'Cynthia'], ['아그네스', 'Agnes'],
+    ['아드리아나', 'Adriana'], ['이브', 'Eve'], ['에바', 'Eva'], ['자스민', 'Jasmine'], ['카렌', 'Karen'],
+    ['트레이시', 'Tracy'],
+    ["애니", "Annie"], ["페이", "Faye"], ["로티", "Lottie"], ["라비니아", "Lavinia"], ["아이린", "Irene"],
+    ["안젤라", "Angela"], ["조안", "Joan"], ["베티", "Betty"], ["케이트", "Kate"], ["케이틀린", "Caitlin"],
+    ["힐다", "Hilda"],
   ],
   // 성별 구분 없이 쓰이는 이름
   unisex: [
     ['블레이크', 'Blake'], ['시드니', 'Sidney'], ['브라이어', 'Briar'], ['에이버리', 'Avery'], ['블레어', 'Blair'],
     ['프란시스', 'Francis'], ['샌디', 'Sandy'], ['할리', 'Harley'],
+    ['로완', 'Rowan'], ['스카일러', 'Skyler'], ['리버', 'River'], ['케이시', 'Casey'], ['제이미', 'Jamie'],
+    ['조던', 'Jordan'], ['다코타', 'Dakota'], ['리스', 'Reese'], ['로빈', 'Robin'], ['페이튼', 'Peyton'],
+    ['켈시', 'Kelsey'],
+    ["제시", "Jesse"], ["에머리", "Emery"],
   ],
 };
 
@@ -263,6 +332,7 @@ window.PERSONA_DATA = {
           ["머피", "Murphy"], ["켈리", "Kelly"], ["오설리번", "O'Sullivan"], ["월시", "Walsh"], ["오브라이언", "O'Brien"], ["번", "Byrne"], ["오코너", "O'Connor"], ["오닐", "O'Neill"],
           ["도일", "Doyle"], ["매카시", "McCarthy"], ["갤러거", "Gallagher"], ["도허티", "Doherty"], ["케네디", "Kennedy"], ["린치", "Lynch"], ["머리", "Murray"], ["맥러플린", "McLoughlin"],
           ["브레넌", "Brennan"], ["피츠제럴드", "Fitzgerald"], ["놀런", "Nolan"], ["패럴", "Farrell"], ["킨", "Keane"],
+          ["브린", "Breen"], ["맥그래스", "McGrath"],
         ],
         given: {
           female: [
@@ -295,6 +365,7 @@ window.PERSONA_DATA = {
           ['이네스', 'Inès'], ['줄리아', 'Julia'], ['레나', 'Léna'], ['조에', 'Zoé'], ['줄리엣', 'Juliette'], ['마농', 'Manon'],
           ['아가트', 'Agathe'], ['클라라', 'Clara'], ['가랑스', 'Garance'], ['마르고', 'Margot'], ['로만', 'Romane'], ['루시', 'Lucie'],
           ['샤를로트', 'Charlotte'], ['엘리즈', 'Élise'], ['마틸드', 'Mathilde'], ['오세안', 'Océane'], ['잔', 'Jeanne'],
+          ["르네", "Renée"], ["아네트", "Annette"],
         ],
         male: [
           ['뤼시앵', 'Lucien'], ['가스파르', 'Gaspard'], ['앙투안', 'Antoine'], ['쥘', 'Jules'], ['테오', 'Théo'], ['레미', 'Rémy'], ['루이', 'Louis'], ['바티스트', 'Baptiste'],
@@ -304,9 +375,11 @@ window.PERSONA_DATA = {
           ['기욤', 'Guillaume'], ['아드리앙', 'Adrien'], ['줄리앵', 'Julien'], ['피에르', 'Pierre'], ['마티스', 'Mathis'], ['엘리엇', 'Eliott'],
           ['에르베', 'Hervé'], ['웨슬리', 'Wesley'], ['제레미', 'Jérémy'], ['아르센', 'Arsène'], ['노엘', 'Noël'], ['닐', 'Nil'],
           ['로랑', 'Laurent'], ['로베르', 'Robert'],
+          ["르네", "René"],
         ],
         unisex: [
           ['카미유', 'Camille'], ['사샤', 'Sacha'],
+          ["클로드", "Claude"],
         ],
       },
     },
@@ -319,6 +392,7 @@ window.PERSONA_DATA = {
         ['바우어', 'Bauer'], ['리히터', 'Richter'], ['클라인', 'Klein'], ['볼프', 'Wolf'], ['슈뢰더', 'Schröder'], ['노이만', 'Neumann'],
         ['슈바르츠', 'Schwarz'], ['브라운', 'Braun'], ['크뤼거', 'Krüger'], ['하르트만', 'Hartmann'], ['랑게', 'Lange'], ['켈러', 'Keller'],
         ['베르너', 'Werner'], ['크라우제', 'Krause'], ['레만', 'Lehmann'], ['하인리히', 'Heinrich'], ['쾨니히', 'König'],
+        ["크나우어", "Knauer"],
       ],
       given: {
         female: [
@@ -357,6 +431,7 @@ window.PERSONA_DATA = {
           ['비앙카', 'Bianca'], ['아리안나', 'Arianna'], ['마틸데', 'Matilde'], ['엘레나', 'Elena'], ['카밀라', 'Camilla'], ['루도비카', 'Ludovica'],
           ['마르게리타', 'Margherita'], ['세레나', 'Serena'], ['이사벨라', 'Isabella'], ['일라리아', 'Ilaria'], ['발렌티나', 'Valentina'], ['로베르타', 'Roberta'],
           ['라우라', 'Laura'],
+          ["안젤라", "Angela"],
         ],
         male: [
           ['레오나르도', 'Leonardo'], ['프란체스코', 'Francesco'], ['알레산드로', 'Alessandro'], ['로렌초', 'Lorenzo'], ['마티아', 'Mattia'], ['안드레아', 'Andrea'],
@@ -364,6 +439,7 @@ window.PERSONA_DATA = {
           ['안토니오', 'Antonio'], ['조반니', 'Giovanni'], ['줄리오', 'Giulio'], ['필리포', 'Filippo'], ['마르코', 'Marco'], ['피에트로', 'Pietro'],
           ['사무엘레', 'Samuele'], ['알레시오', 'Alessio'], ['디에고', 'Diego'], ['다비데', 'Davide'], ['페데리코', 'Federico'], ['크리스티안', 'Christian'],
           ['발레리오', 'Valerio'], ['빈첸초', 'Vincenzo'], ['루이지', 'Luigi'], ['로베르토', 'Roberto'], ['스테파노', 'Stefano'], ['파올로', 'Paolo'],
+          ['레나토', 'Renato'],
         ],
       },
     },
@@ -385,6 +461,7 @@ window.PERSONA_DATA = {
           ['블랑카', 'Blanca'], ['아이타나', 'Aitana'], ['베가', 'Vega'], ['롤라', 'Lola'], ['빅토리아', 'Victoria'], ['카밀라', 'Camila'],
           ['이사벨', 'Isabel'], ['안토니아', 'Antonia'], ['실비아', 'Silvia'], ['베아트리스', 'Beatriz'], ['나탈리아', 'Natalia'], ['에스텔라', 'Estela'],
           ['로사나', 'Rosana'],
+          ["후아나", "Juana"], ["아델라", "Adela"],
         ],
         male: [
           ['알레한드로', 'Alejandro'], ['마테오', 'Mateo'], ['우고', 'Hugo'], ['마르틴', 'Martín'], ['루카스', 'Lucas'], ['레오', 'Leo'],
@@ -392,9 +469,12 @@ window.PERSONA_DATA = {
           ['마리오', 'Mario'], ['엔조', 'Enzo'], ['디에고', 'Diego'], ['마르코스', 'Marcos'], ['이산', 'Izan'], ['하비에르', 'Javier'],
           ['마르코', 'Marco'], ['티아고', 'Thiago'], ['카를로스', 'Carlos'], ['호르헤', 'Jorge'], ['안토니오', 'Antonio'], ['미겔', 'Miguel'],
           ['후안', 'Juan'], ['가브리엘', 'Gabriel'], ['펠리페', 'Felipe'], ['안드레스', 'Andrés'], ['이그나시오', 'Ignacio'], ['로드리고', 'Rodrigo'],
+          ['레나토', 'Renato'],
         ],
       },
     },
+    // 무국적: 이름은 모든 나라 목록에서 랜덤
+    none: { ko: '무국적', region: 'etc', anyName: true },
     ru: {
       ko: '러시아', region: 'europe', order: 'west',
       // 부칭(아버지 이름에서 만든 중간 이름) 중 규칙을 따르지 않는 것: [남성형, 여성형]
@@ -499,6 +579,8 @@ window.PERSONA_DATA = {
     { ko: '글래머러스', tag: 'curvy', g: ['female'] },
     { ko: '가녀린 체형', tag: 'petite', g: ['female', 'nonbinary'] },
     { ko: '어깨가 넓은 체형', tag: 'broad shoulders', g: ['male', 'nonbinary'] },
+    { ko: '살집이 있는 체형', tag: 'plump' },
+    { ko: '육감적인 체형', tag: 'curvy, thick thighs', g: ['female', 'nonbinary'] },
   ],
 
   jobs: [
@@ -549,6 +631,7 @@ window.PERSONA_DATA = {
     { ko: '민트색', en: 'mint', hex: '#8FD3C1' },
     { ko: '애쉬 그린', en: 'ash green', hex: '#7E9A8A' },
     { ko: '와인색', en: 'wine red', hex: '#6B1E33' },
+    { ko: '주황색', en: 'orange', hex: '#E0782F' },
   ],
 
   // 첫 항목(없음)이 뽑힐 확률은 app.js에서 조정. {c} = 두 번째 색 이름
@@ -632,6 +715,8 @@ window.PERSONA_DATA = {
     { ko: '나른한' }, { ko: '장난기 어린' }, { ko: '순해 보이는' }, { ko: '늘 피곤해 보이는' },
     { ko: '화려한' }, { ko: '단정한' }, { ko: '어딘가 쓸쓸한' },
     { ko: '위압감 있는', mature: true }, { ko: '성숙하고 차분한', mature: true }, { ko: '노련해 보이는', mature: true },
+    { ko: '청초한' }, { ko: '천진난만한' }, { ko: '매혹적인' }, { ko: '관능적인' }, { ko: '맹한' },
+    { ko: '허술해 보이는' }, { ko: '금욕적인' }, { ko: '공허한' }, { ko: '이지적인' },
   ],
 
   skins: [
@@ -664,6 +749,10 @@ window.PERSONA_DATA = {
     { ko: '어깨 문신', tag: 'shoulder tattoo' },
     { ko: '손등 문신', tag: 'hand tattoo' },
     { ko: '가슴팍 문신', tag: 'chest tattoo' },
+    { ko: '수술 자국', tag: 'scar' },
+    { ko: '백반증', tag: 'vitiligo' },
+    { ko: '작은 입', tag: 'small mouth', grp: 'mouth' },
+    { ko: '큰 입', tag: 'wide mouth', grp: 'mouth' },
   ],
 
   // {c} = 옷 색 (clothColors에서 랜덤, 한 벌 안에서는 같은 색)
@@ -680,12 +769,34 @@ window.PERSONA_DATA = {
     { ko: '페미닌', tag: '{c} blouse, long skirt', g: ['female', 'nonbinary'] },
     { ko: '오피스룩', tag: 'white blouse, {c} pencil skirt, office lady', g: ['female'] },
     { ko: '워크웨어', tag: '{c} work jacket, cargo pants, boots', g: ['male', 'nonbinary'] },
+    { ko: '히피', tag: 'hippie, headband, {c} flared pants' },
+    { ko: '컨트리', tag: '{c} plaid shirt, overalls, straw hat' },
+    { ko: '레트로', tag: '{c} windbreaker, high-waist pants' },
+    { ko: '바이커룩', tag: 'biker clothes, black leather jacket, {c} jeans, boots' },
+    { ko: '메탈룩', tag: 'black band shirt, studded belt, spiked bracelet, black leather pants' },
+    { ko: '블록코어', tag: '{c} soccer uniform, track pants, sneakers' },
+    { ko: '수도복', tag: 'nun, habit', g: ['female', 'nonbinary'] },
+    { ko: '수도복', tag: 'cassock, priest', g: ['male', 'nonbinary'] },
+    { ko: '웨스턴', tag: 'cowboy western, cowboy hat, {c} vest, cowboy boots' },
+    { ko: '하라주쿠', tag: 'harajuku fashion, colorful clothes, layered clothes, hair ornament' },
+    { ko: 'EMO 패션', tag: 'emo fashion, black hoodie, striped arm warmers, wristband' },
+    { ko: '젠더리스', tag: 'oversized {c} shirt, wide-leg pants' },
+    { ko: '보헤미안', tag: 'bohemian, fringe, {c} layered clothes' },
+    { ko: 'Y2K', tag: '{c} crop top, low-rise jeans, platform shoes' },
+    { ko: '에스닉', tag: 'ethnic clothes, embroidered {c} tunic' },
+    { ko: '마린룩', tag: 'striped shirt, white pants, sailor hat' },
+    { ko: '하이패션', tag: 'high fashion, {c} designer coat' },
+    { ko: '밀리터리', tag: 'military jacket, {c} cargo pants, combat boots' },
+    { ko: '테크웨어', tag: 'techwear, black windbreaker, straps, cargo pants' },
+    { ko: '고스', tag: 'goth fashion, black lipstick, fishnets, platform boots' },
+    { ko: '로리타', tag: 'lolita fashion, {c} frilled dress, bonnet', g: ['female', 'nonbinary'] },
   ],
   clothColors: ['black', 'white', 'grey', 'navy', 'beige', 'brown', 'dark green', 'burgundy', 'cream'],
 
   voices: [
     '낮고 허스키한 목소리', '맑고 높은 목소리', '나긋나긋한 목소리', '건조하고 무뚝뚝한 목소리',
     '부드러운 중저음', '발랄하고 톤이 높은 목소리', '느릿하고 나른한 목소리', '또렷하고 단호한 목소리',
+    '카랑카랑한 목소리', '중성적인 목소리', '금속성 음색',
   ],
 
   traits: [
@@ -693,6 +804,20 @@ window.PERSONA_DATA = {
     '호기심이 많음', '집착이 강함', '낙천적', '계산적', '충동적', '느긋함', '책임감이 강함',
     '눈치가 빠름', '허당', '독설가', '헌신적', '질투가 많음', '겁이 많음', '대담함', '예의 바름',
     '제멋대로', '외로움을 잘 탐', '감정 표현이 서툶', '장난기가 많음', '이성적', '감성적', '고집이 셈',
+    '정이 많음', '탐미주의', '감정을 숨김', '회복탄력성이 높음',
+    '권태로움', '수줍음', '소유욕이 강함', '덜렁댐', '어수룩함', '순진함',
+    '염세적', '독립적', '자기희생적', '자기중심적', '우유부단함', '승부욕이 강함',
+    '예민함', '눈치 없음', '솔직함', '짓궂음', '고지식함', '건방짐',
+    '거만함', '게으름', '부지런함', '능청스러움', '뻔뻔함', '무던함',
+  ],
+
+  // 내면: 겉으로 잘 드러나지 않는 핵심 욕구 · 두려움 · 방어기제
+  inners: [
+    '통제 욕구', '통제 상실 공포', '방어적 공격성', '친절 강박', '소속 욕구', '자기 검열',
+    '인정 욕구', '유기 불안', '과잉 책임감', '회피 성향', '자기 파괴 충동', '완벽주의적 강박',
+    '보호 욕구', '의존적', '자극 추구', '위험 추구', '죄책감', '피해의식',
+    '무기력', '감정 억제', '깊은 관계 회피', '열등감', '이상주의', '허무주의',
+    '인간 불신', '구원 욕구', '위선자', '반골',
   ],
 
   gaps: [
@@ -711,6 +836,7 @@ window.PERSONA_DATA = {
     '누구에게나 존댓말', '반말과 존댓말을 섞어 씀', '짧고 단답형', '느릿하게 늘어지는 말투',
     '사투리가 섞인 말투', '비꼬는 말투', '말끝을 흐림', '다정한 반말', '장난스러운 말투',
     '격식 있는 문어체', '말수가 적고 핵심만 말함', '혼잣말이 많음',
+    '살가운 말투', '과장된 말투', '새침한 말투', '장황하고 비유가 많음', '냉소적인 말투',
   ],
 
   likes: [
@@ -756,6 +882,7 @@ window.PERSONA_DATA = {
     '무의식적으로 펜을 돌린다', '잠들기 전 일기를 쓴다', '초조하면 손톱을 뜯는다',
     '기분 좋으면 콧노래를 부른다', '상대의 말을 곱씹듯 따라 한다', '불안하면 손가락으로 톡톡 두드린다',
     '커피를 하루 네 잔 이상 마신다', '물건을 정해진 자리에만 둔다', '한숨을 자주 쉰다',
+    '습관적으로 팔짱을 낀다', '대화할 때 시선을 피한다',
   ],
 
   // 체향: 탑 노트(top) 1개 + 베이스 노트(base) 1개
@@ -792,12 +919,15 @@ window.PERSONA_DATA = {
     '멀티태스킹 불가', '눈치가 심하게 없음', '집중하면 주변 소리를 못 들음', '선단공포증 (뾰족한 것을 무서워함)', '무서운 이야기나 영화에 기겁함', '단순한 도발에 쉽게 넘어감',
     '끔찍한 패션 감각', '불면증', '심해공포증 (깊은 물을 무서워함)', '체력이 몹시 약함', '부탁하는 걸 죽기보다 싫어함', '정리에 소질이 없음',
     '타인의 시선을 과하게 의식함', '알약을 잘 못 삼킴',
+    '몽유병', '기가 약함', '동물들에게 인기 없음', '마취가 잘 듣지 않음', '약물 내성', '잠버릇이 심함',
+    '색약', '건망증', '잔병치레가 많음', '알레르기', '카페인에 예민함',
   ],
 
   families: [
     '외동', '화목한 집안의 첫째', '형제 많은 집안의 막내', '쌍둥이 동생이 있음', '편부 가정',
     '편모 가정', '조부모 손에 자람', '연락을 끊은 가족', '재벌가의 막내', '입양됨',
     '이복형제가 있음', '가족을 모두 잃음',
+    '재혼 가정', '위탁 가정',
   ],
 
   traumas: [
@@ -811,6 +941,7 @@ window.PERSONA_DATA = {
     '누군가를 오래 짝사랑 중', '인형 없이는 잠들지 못함', '숨기고 싶은 전과가 있음',
     '가족에게 숨긴 직업이 있음', '사실 요리를 전혀 못 함', '남에게 말 못 한 지병이 있음',
     '익명으로 꾸준히 기부 중', '유명 인플루언서의 부계정 주인',
+    '실패에 대한 공포', '사생아', '서자',
   ],
 
   loves: [
@@ -851,14 +982,18 @@ window.PERSONA_DATA = {
     { ko: '프레이 (Primal)', side: 'sub' },
     { ko: '디그레이디', side: 'sub' },
     { ko: '익스페리멘탈리스트', side: 'any' },
-    { ko: '보이어', side: 'any' },
-    { ko: '익시비셔니스트', side: 'any' },
+    { ko: '관음증', side: 'any' },
+    { ko: '노출증', side: 'any' },
     { ko: '논모노가미스트', side: 'any' },
     { ko: '바닐라', side: 'any' },
+    { ko: '대디/마미', side: 'dom' },
+    { ko: '케어기버', side: 'dom' },
   ],
   nsfwStyles: [
     '다정하고 배려 깊음', '집요함', '장난스러움', '말로 몰아붙이는 타입', '조용하지만 격렬함',
     '수줍어하지만 적극적', '느긋하게 애태움', '규칙과 의식을 중시함', '평소와 정반대',
+    '이성을 잃고 집착함', '서투름', '시각적인 자극(거울, 지켜보기 등)에 약함',
+    '상대의 페이스에 쉽게 말려들어감', '상대방이 무너지는 반응을 즐김', '철저하게 통제하고 지배함',
   ],
   // tag: 한계선과 겹치는지 확인할 때 쓰는 분류
   nsfwPlays: [
@@ -874,18 +1009,43 @@ window.PERSONA_DATA = {
     { ko: '감각 차단' },
     { ko: '말로 몰아붙이기', tag: 'verbal' },
     { ko: '긴 애프터케어' },
+    { ko: '오르가즘 컨트롤 · 방치' },
+    { ko: '소리 참게 하기' },
+    { ko: '깨물기', tag: 'mark' },
+    { ko: '거울 플레이' },
+    { ko: '워터 플레이' },
+    { ko: '브레스 컨트롤', tag: 'breath' },
+    { ko: '코스튬 플레이' },
+    { ko: '기구 사용' },
+    { ko: '공개된 장소', tag: 'public' },
+    { ko: '언어적 모욕', tag: 'verbal' },
   ],
   nsfwLimits: [
     { ko: '흔적이 남는 행위', tag: 'mark' },
     { ko: '강한 고통', tag: 'pain' },
     { ko: '언어적 모욕', tag: 'verbal' },
     { ko: '결박', tag: 'rope' },
-    { ko: '공개된 장소' },
+    { ko: '공개된 장소', tag: 'public' },
     { ko: '사진 · 영상 촬영' },
     { ko: '제3자 개입' },
     { ko: '없음 (대화로 조율)' },
+    { ko: '브레스 컨트롤', tag: 'breath' },
+    { ko: '나이프 플레이', tag: 'knife' },
   ],
-  nsfwSpots: ['귀', '목덜미', '허리', '쇄골', '손목', '등', '허벅지 안쪽'],
+  nsfwSpots: [
+    '귀', '목덜미', '허리', '쇄골', '손목', '등', '허벅지 안쪽', '아랫배', '무릎 뒤쪽', '날개뼈', '발목', '귓바퀴',
+    '유두', '옆구리', '배꼽 주변', '손가락 사이', '겨드랑이', '팔꿈치 안쪽', '입천장',
+  ],
+  // 신체 특이사항: anat(f/m)가 있으면 그 신체에만, grp가 같으면 한 번에 하나만
+  nsfwBodies: [
+    { ko: '함몰유두' }, { ko: '배꼽 피어싱' }, { ko: '유두 피어싱' },
+    { ko: '흔적이 잘 남는 피부' }, { ko: '쉽게 붉어지는 피부' },
+    { ko: '무모증', grp: 'pubic' }, { ko: '브라질리언 왁싱', grp: 'pubic' }, { ko: '음모가 짙고 숱이 많음', grp: 'pubic' },
+    { ko: '쉽게 젖음', anat: 'f', grp: 'wet' }, { ko: '건조한 편 (윤활제 필요)', anat: 'f', grp: 'wet' },
+    { ko: '명기', anat: 'f' }, { ko: '안쪽이 유난히 좁음', anat: 'f' },
+    { ko: '거근', anat: 'm' }, { ko: '포경 수술 완료', anat: 'm', grp: 'foreskin' },
+    { ko: '자연 포경 · 노포경', anat: 'm', grp: 'foreskin' }, { ko: '사정량이 많음', anat: 'm' },
+  ],
 
   // 이미지 프롬프트 표정 (표정 재생성 버튼으로 바뀌는 부분)
   // 기본 표정 1개 + 50% 확률로 보조 표정 1개
