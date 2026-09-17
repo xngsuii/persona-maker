@@ -59,43 +59,47 @@
           </div>
         </fieldset>
 
-        <fieldset class="field">
-          <legend>나이 범위 <span class="legend-sub">성인만 · 20–60세</span></legend>
-          <div class="range-row">
-            <input id="ageMin" class="num" type="number" min="20" max="60" value="20" inputmode="numeric" aria-label="최소 나이">
-            <span>~</span>
-            <input id="ageMax" class="num" type="number" min="20" max="60" value="35" inputmode="numeric" aria-label="최대 나이">
-            <span class="muted">세</span>
-          </div>
-        </fieldset>
-
-        <fieldset class="field">
-          <legend>키 범위 <span class="legend-sub">비우면 성별 기준</span></legend>
-          <div class="range-row">
-            <input id="heightMin" class="num" type="number" min="140" max="210" placeholder="자동" inputmode="numeric" aria-label="최소 키">
-            <span>~</span>
-            <input id="heightMax" class="num" type="number" min="140" max="210" placeholder="자동" inputmode="numeric" aria-label="최대 키">
-            <span class="muted">cm</span>
-          </div>
-        </fieldset>
+        <div class="field-pair">
+          <fieldset class="field">
+            <legend title="성인 캐릭터만 생성해요">나이 <span class="legend-sub">20–60세</span></legend>
+            <div class="range-row">
+              <input id="ageMin" class="num" type="number" min="20" max="60" value="20" inputmode="numeric" aria-label="최소 나이">
+              <span>~</span>
+              <input id="ageMax" class="num" type="number" min="20" max="60" value="35" inputmode="numeric" aria-label="최대 나이">
+            </div>
+          </fieldset>
+          <fieldset class="field">
+            <legend title="비워 두면 성별 기준 범위를 써요">키 <span class="legend-sub">cm · 빈칸 자동</span></legend>
+            <div class="range-row">
+              <input id="heightMin" class="num" type="number" min="140" max="210" placeholder="자동" inputmode="numeric" aria-label="최소 키 (cm)">
+              <span>~</span>
+              <input id="heightMax" class="num" type="number" min="140" max="210" placeholder="자동" inputmode="numeric" aria-label="최대 키 (cm)">
+            </div>
+          </fieldset>
+        </div>
 
         <fieldset class="field">
           <legend>옵션</legend>
           <label class="check"><input id="optFantasy" type="checkbox" checked><span>판타지 머리색 · 눈동자색 포함</span></label>
+          <label class="check"><input id="optHanja" type="checkbox" checked><span>한·중·일 이름에 한자 표기</span></label>
           <label class="check"><input id="optPatronymic" type="checkbox" checked><span>러시아 이름에 부칭 포함</span></label>
           <label class="check"><input id="optPrompt" type="checkbox"><span>이미지 생성 프롬프트 함께 만들기</span></label>
-          <p class="hint">생성 후에 켜면 페르소나는 그대로 두고 프롬프트만 만들어요.</p>
         </fieldset>
 
         <div class="field" role="group" aria-labelledby="pickTitle">
           <div class="field-head">
             <span id="pickTitle" class="field-label">포함할 항목</span>
-            <button id="pickReset" class="btn-mini" type="button" title="NSFW만 빼고 전부 선택">기본값</button>
+            <span class="field-tools">
+              <button id="pickReset" class="btn-mini" type="button" title="NSFW만 빼고 전부 선택">기본값</button>
+              <button id="pickFold" class="btn-mini" type="button" aria-controls="pickBody" aria-expanded="true">접기 ▴</button>
+            </span>
           </div>
-          <div id="itemPicker" class="picker"></div>
-          <div class="pick-actions">
-            <button id="pickAll" class="btn btn-small" type="button">전체 선택</button>
-            <button id="pickNone" class="btn btn-small" type="button">전체 해제</button>
+          <div id="pickBody" class="pick-body">
+            <div id="itemPicker" class="picker"></div>
+            <div class="pick-actions">
+              <button id="pickAll" class="btn btn-small" type="button">전체 선택</button>
+              <button id="pickNone" class="btn btn-small" type="button">전체 해제</button>
+            </div>
           </div>
         </div>
 
@@ -103,13 +107,16 @@
       </form>
     </aside>
 
+    <div class="workspace">
     <section class="stage">
       <p class="stage-hint">영수증의 항목을 클릭하면 그 항목만 다시 뽑아요.</p>
 
       <div class="receipt-holder">
         <div id="receipt" class="receipt"></div>
       </div>
+    </section>
 
+    <aside class="side">
       <div class="actions">
         <button id="copyMd" class="btn btn-primary" type="button" disabled>마크다운 복사하기</button>
         <button id="saveImg" class="btn" type="button" disabled>이미지로 저장</button>
@@ -117,16 +124,14 @@
 
       <section id="promptCard" class="card prompt-card" hidden>
         <div class="card-head">
-          <div>
-            <h2 class="card-title">이미지 생성 프롬프트</h2>
-            <p class="hint">NovelAI 태그 형식 · 외형은 페르소나를 따르고 표정만 따로 다시 뽑을 수 있어요</p>
-          </div>
+          <h2 class="card-title">이미지 생성 프롬프트</h2>
           <button id="rerollPrompt" class="btn btn-small" type="button">표정 재생성</button>
         </div>
         <div id="promptBody" class="prompt-body"></div>
         <button id="copyPrompt" class="btn btn-primary btn-block" type="button">프롬프트 복사하기</button>
       </section>
-    </section>
+    </aside>
+    </div>
   </main>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>

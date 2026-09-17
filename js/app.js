@@ -3,12 +3,13 @@
 
   const D = window.PERSONA_DATA;
   const $ = (sel, root = document) => root.querySelector(sel);
-  const STORE_KEY = 'pr-last-v4';
   const OPTS_KEY = 'pr-opts';
   const AGE_MIN = 20;
   const AGE_MAX = 60;
   const HEIGHT_MIN = 140;
   const HEIGHT_MAX = 210;
+  // 국적 선택칸의 지역 구분 (선택 불가 제목)
+  const REGIONS = [['asia', '아시아'], ['americas', '아메리카'], ['europe', '유럽'], ['oceania', '오세아니아']];
 
   /* ---------- random helpers ---------- */
   const rand = (n) => Math.floor(Math.random() * n);
@@ -93,6 +94,7 @@
     const h = p.heritage;
     let surNation = n;
     let givenNation = n;
+    if (h && h.type === 'sub') surNation = givenNation = n.subgroups[h.idx].nation;
     if (h && h.type === 'heritage') {
       surNation = D.nations[h.other];
     } else if (h && h.type === 'mixed') {
@@ -100,13 +102,25 @@
       [surNation, givenNation] = shuffle([n, other]);
       if (Math.random() < 0.3) givenNation = surNation; // 가끔은 한쪽 나라 이름 그대로
     }
+    if (givenNation.englishPool && Math.random() < givenNation.englishGiven.rate) givenNation = givenNation.englishPool;
     const gid = p.gender.id === 'nonbinary' ? pick(['female', 'male']) : p.gender.id;
-    const given = pick(givenPool(givenNation, gid, p.gender.id === 'nonbinary'));
-    let sur = pick(surNation.surnames);
+    const own = (nat) => nat.extra && Math.random() < nat.extra.rate; // 고유 목록 우선 (아일랜드 등)
+    const given = pick(own(givenNation) && givenNation.extra.given[gid]
+      ? givenNation.extra.given[gid]
+      : givenPool(givenNation, gid, p.gender.id === 'nonbinary'));
+    let sur = pick(own(surNation) ? surNation.extra.surnames : surNation.surnames);
     if (!Array.isArray(sur)) sur = gid === 'female' ? sur.f : sur.m;
-    if (n.order === 'east') {
-      const space = n.spaceKo || surNation !== givenNation ? ' ' : '';
-      return { ko: sur[0] + space + given[0], en: `${sur[1]} ${given[1]}` };
+    // 성·이름이 같은 나라에서 나왔으면 그 나라의 표기 순서를, 섞였으면 국적의 순서를 따른다
+    const base = givenNation.forceOrder ? givenNation : surNation === givenNation ? surNation : n;
+    if (base.order === 'east') {
+      const space = base.spaceKo || surNation !== givenNation ? ' ' : '';
+      const east = { ko: sur[0] + space + given[0], en: `${sur[1]} ${given[1]}` };
+      // 한자 표기: 성·이름 모두 한자 문화권일 때만. 고유어 이름은 한글 그대로
+      if (surNation.hanja && givenNation.hanja && (sur[2] || given[2])) {
+        const sep = surNation === givenNation && !surNation.hanjaSpace ? '' : ' ';
+        east.hanja = `${sur[2] || sur[0]}${sep}${given[2] || given[0]}`;
+      }
+      return east;
     }
     const name = { ko: `${given[0]} ${sur[0]}`, en: `${given[1]} ${sur[1]}` };
     // 러시아 국적이면 부칭을 붙인 풀네임도 만들어 둔다 (표시는 옵션에 따라)
@@ -161,9 +175,62 @@
     return [...nation.given[gid], ...unisex];
   }
 
-  // 같은 로마자 표기의 이름·성은 하나만 남긴다 (중성 이름이 우선). 직업도 중복 제거
+  // 간체 → 번체 (중국 이름 데이터에 쓰인 글자만)
+  const TRAD = Object.fromEntries(
+    [...'张張陈陳谢謝陆陸刘劉杨楊赵趙黄黃吴吳孙孫马馬罗羅郑鄭兰蘭晓曉梦夢瑶瑤诺諾悦悅静靜诗詩轩軒杰傑云雲贤賢阳陽泽澤诚誠伟偉远遠']
+      .reduce((acc, ch, i, arr) => (i % 2 ? acc : [...acc, [ch, arr[i + 1]]]), []),
+  );
+  const toTrad = (str) => [...str].map((ch) => TRAD[ch] || ch).join('');
+
+  // shares 가 있는 나라는 다른 나라의 이름 목록을 복사해 쓴다 (표기만 그 나라에 맞게)
+  function buildSharedNations() {
+    Object.values(D.nations).forEach((n) => {
+      if (!n.shares) return;
+      const src = n.shares.map((id) => D.nations[id]);
+      const first = src[0];
+      ['order', 'spaceKo', 'hanja', 'hanjaSpace'].forEach((k) => { if (!(k in n) && k in first) n[k] = first[k]; });
+      const localize = (x, isSur) => {
+        if (!Array.isArray(x)) return x;
+        const out = x.slice();
+        if (n.trad && out[2]) out[2] = toTrad(out[2]);
+        if (isSur && n.surnameRoman && n.surnameRoman[out[2]]) [out[0], out[1]] = n.surnameRoman[out[2]];
+        return out;
+      };
+      const extra = n.extra || { surnames: [], given: {} };
+      n.surnames = [...extra.surnames, ...src.flatMap((x) => x.surnames).map((x) => localize(x, true))];
+      n.given = {};
+      ['female', 'male', 'unisex'].forEach((g) => {
+        n.given[g] = [...(extra.given[g] || []), ...src.flatMap((x) => x.given[g] || []).map((x) => localize(x, false))];
+      });
+      if (n.englishGiven) {
+        const pool = n.englishGiven.from.map((id) => D.nations[id]);
+        n.englishPool = {
+          order: 'west', forceOrder: true,
+          given: Object.fromEntries(['female', 'male', 'unisex'].map((g) => [g, pool.flatMap((x) => x.given[g] || [])])),
+        };
+      }
+    });
+  }
+
+  // 하위 그룹(미국의 히스패닉계, 캐나다의 퀘벡 등)을 뽑기용 나라 객체로 만든다
+  function buildSubgroups() {
+    Object.values(D.nations).forEach((n) => {
+      (n.subgroups || []).forEach((sg) => {
+        const src = D.nations[sg.from];
+        sg.nation = {
+          order: src.order, spaceKo: src.spaceKo, forceOrder: true,
+          surnames: [...(sg.surnames || []), ...src.surnames],
+          given: src.given,
+        };
+      });
+    });
+  }
+
+  // 같은 로마자 표기의 이름·성은 하나만 남긴다 (중성 이름이 우선). 키워드 목록도 중복 제거
   function dedupeNames() {
-    D.jobs = [...new Set(D.jobs)];
+    ['jobs', 'traits', 'likes', 'dislikes', 'hobbies', 'habits', 'weaknesses', 'families', 'traumas', 'secrets', 'loves']
+      .forEach((k) => { D[k] = [...new Set(D[k])]; });
+    D.marks = D.marks.filter((m, i, arr) => arr.findIndex((x) => x.ko === m.ko) === i);
     const uniq = (arr, key, seen = new Set()) => arr.filter((x) => {
       const k = key(x).toLowerCase();
       if (seen.has(k)) return false;
@@ -171,22 +238,29 @@
       return true;
     });
     Object.values(D.nations).forEach((n) => {
-      n.surnames = uniq(n.surnames, (x) => (Array.isArray(x) ? x[1] : x.m[1]));
+      if (!n.surnames) return; // 공유 나라는 목록을 만든 뒤에 정리
+      n.surnames = uniq(n.surnames, (x) => (Array.isArray(x) ? x[1] + (x[2] || '') : x.m[1]));
       const seen = new Set();
       ['unisex', 'female', 'male'].forEach((g) => {
-        if (n.given[g]) n.given[g] = uniq(n.given[g], (x) => x[1], seen);
+        if (n.given[g]) n.given[g] = uniq(n.given[g], (x) => x[1] + (x[2] || ''), seen);
       });
     });
   }
 
   // 혈통: 단일 / 혼혈(mixed) / ~계(heritage)
   function rollHeritage(p, o) {
+    const n = D.nations[p.nation];
     let type = o.blood;
     if (type === 'random') {
       const r = Math.random();
       type = r < 0.7 ? 'single' : r < 0.85 ? 'mixed' : 'heritage';
     }
-    if (type === 'single') return null;
+    if (type === 'single') {
+      // 하위 그룹 (히스패닉계 미국인 등)
+      let r = Math.random();
+      const idx = (n.subgroups || []).findIndex((x) => (r -= x.rate) < 0);
+      return idx >= 0 ? { type: 'sub', idx } : null;
+    }
     return { type, other: pick(Object.keys(D.nations).filter((id) => id !== p.nation)) };
   }
 
@@ -194,6 +268,7 @@
     const n = D.nations[p.nation].ko;
     const h = p.heritage;
     if (!h) return n;
+    if (h.type === 'sub') return `${D.nations[p.nation].subgroups[h.idx].label} ${n}인`;
     const other = D.nations[h.other].ko;
     return h.type === 'mixed' ? `${n} · ${other} 혼혈` : `${other}계 ${n}인`;
   }
@@ -458,6 +533,7 @@
     const full = o.patronymic && p.name.full;
     const out = [`# ${p.name.ko} (${p.name.en})`, ''];
     if (full) out.push(`> ${full.ko} (${full.en})`, '>');
+    if (o.hanja && p.name.hanja) out.push(`> ${p.name.hanja}`, '>');
     out.push(`> ${summaryLine(p, o)}`, '');
     visibleSections(o).forEach((s) => {
       out.push(`## ${s.ko}`);
@@ -553,6 +629,8 @@
       fantasy: $('#optFantasy').checked,
       prompt: $('#optPrompt').checked,
       patronymic: $('#optPatronymic').checked,
+      hanja: $('#optHanja').checked,
+      pickerFolded: $('#pickBody').hidden,
       hidden,
     };
   }
@@ -579,17 +657,9 @@
     if (typeof o.fantasy === 'boolean') $('#optFantasy').checked = o.fantasy;
     if (typeof o.prompt === 'boolean') $('#optPrompt').checked = o.prompt;
     if (typeof o.patronymic === 'boolean') $('#optPatronymic').checked = o.patronymic;
+    if (typeof o.hanja === 'boolean') $('#optHanja').checked = o.hanja;
+    setPickerFolded(o.pickerFolded === true);
     if (Array.isArray(o.hidden)) hidden = new Set(o.hidden.filter((id) => ALL_ROWS.includes(id)));
-  }
-
-  function save() {
-    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* noop */ }
-  }
-  function load() {
-    try {
-      const s = JSON.parse(localStorage.getItem(STORE_KEY));
-      if (s && s.persona && s.persona.name) Object.assign(state, s);
-    } catch (e) { /* noop */ }
   }
 
   /* ---------- item picker (왼쪽 선택기) ---------- */
@@ -607,6 +677,13 @@
         </div>
       </div>`).join('');
     syncPicker();
+  }
+
+  function setPickerFolded(folded) {
+    $('#pickBody').hidden = folded;
+    const b = $('#pickFold');
+    b.setAttribute('aria-expanded', String(!folded));
+    b.textContent = folded ? '펼치기 ▾' : '접기 ▴';
   }
 
   function syncPicker() {
@@ -702,6 +779,7 @@
       <p class="r-kicker">PERSONA RECEIPT</p>
       <h1 class="r-name rr" role="button" tabindex="0" data-row="name" title="이름만 다시 뽑기">${esc(p.name.ko)}</h1>
       ${o.patronymic && p.name.full ? `<p class="r-fullname">${esc(p.name.full.ko)}</p>` : ''}
+      ${o.hanja && p.name.hanja ? `<p class="r-fullname">${esc(p.name.hanja)}</p>` : ''}
       <p class="r-roman">${esc(o.patronymic && p.name.full ? p.name.full.en : p.name.en)}</p>
       <p class="r-meta">${esc(summaryLine(p, o))}</p>
       <div class="r-order">
@@ -797,7 +875,6 @@
     state.order = randInt(1, 9999);
     state.auth = randInt(100000, 999999);
     state.time = Date.now();
-    save();
     saveOptions();
     renderAll();
   }
@@ -808,7 +885,6 @@
     const rowId = target.dataset.row;
     const keys = rowId === 'name' ? ['name'] : $('#receipt')._rows[+rowId].keys;
     rerollKeys(state.persona, keys, o);
-    save();
     renderAll();
     const again = $(`[data-row="${rowId}"]`, $('#receipt'));
     if (again) {
@@ -848,8 +924,18 @@
   /* ---------- init ---------- */
   function init() {
     dedupeNames();
+    buildSharedNations();
+    dedupeNames(); // 공유로 합친 목록의 중복도 정리
+    buildSubgroups();
     const sel = $('#nation');
-    Object.entries(D.nations).forEach(([id, n]) => sel.add(new Option(n.ko, id)));
+    REGIONS.forEach(([rid, label]) => {
+      const group = document.createElement('optgroup');
+      group.label = label;
+      Object.entries(D.nations)
+        .filter(([, n]) => n.region === rid)
+        .forEach(([id, n]) => group.append(new Option(n.ko, id)));
+      if (group.children.length) sel.append(group);
+    });
 
     loadOptions();
     renderPicker();
@@ -860,8 +946,13 @@
       saveOptions();
     });
     $('#optPatronymic').addEventListener('change', renderAll);
+    $('#optHanja').addEventListener('change', renderAll);
+    $('#pickFold').addEventListener('click', () => {
+      setPickerFolded(!$('#pickBody').hidden);
+      saveOptions();
+    });
     $('#optPrompt').addEventListener('change', (e) => {
-      if (!e.target.checked) { state.extras = null; save(); }
+      if (!e.target.checked) state.extras = null;
       renderAll();
     });
 
@@ -900,8 +991,7 @@
     $('#saveImg').addEventListener('click', saveImage);
     $('#rerollPrompt').addEventListener('click', () => {
       state.extras = rollExtras();
-      save();
-      renderPrompt(readOptions());
+        renderPrompt(readOptions());
     });
     $('#copyPrompt').addEventListener('click', () => copyText(promptToText($('#promptBody')._secs)));
     $('#promptBody').addEventListener('click', (e) => {
@@ -913,8 +1003,8 @@
       setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
     });
 
-    load();
-    if (state.extras) $('#optPrompt').checked = true;
+    // 예전 버전에서 저장해 둔 페르소나 정리 (이제 페르소나는 저장하지 않음)
+    try { ['pr-last', 'pr-last-v2', 'pr-last-v3', 'pr-last-v4'].forEach((k) => localStorage.removeItem(k)); } catch (e) { /* noop */ }
     renderAll();
   }
 

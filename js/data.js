@@ -59,13 +59,6 @@ const ANGLO = {
   ],
 };
 
-// 미국에만 들어가는 히스패닉계 성씨
-const US_HISPANIC = [
-  ['가르시아', 'Garcia'], ['로드리게스', 'Rodriguez'], ['마르티네스', 'Martinez'], ['에르난데스', 'Hernandez'],
-  ['로페즈', 'Lopez'], ['곤잘레스', 'Gonzalez'], ['페레스', 'Perez'], ['산체스', 'Sanchez'],
-  ['라미레스', 'Ramirez'], ['멘데즈', 'Mendez'], ['마르코스', 'Marcos'],
-];
-
 window.PERSONA_DATA = {
   genders: [
     { id: 'female', ko: '여성', tag: 'girl' },
@@ -78,69 +71,155 @@ window.PERSONA_DATA = {
   // given.unisex: 성별과 상관없이 나오는 이름
   nations: {
     kr: {
-      ko: '한국', order: 'east', spaceKo: false,
+      ko: '한국', region: 'asia', order: 'east', hanja: true, spaceKo: false,
       surnames: [
-        ['김', 'Kim'], ['이', 'Lee'], ['박', 'Park'], ['최', 'Choi'], ['정', 'Jung'], ['강', 'Kang'], ['윤', 'Yoon'], ['한', 'Han'], ['서', 'Seo'], ['신', 'Shin'],
-        ['조', 'Jo'], ['장', 'Jang'], ['임', 'Lim'], ['오', 'Oh'], ['권', 'Kwon'], ['황', 'Hwang'], ['안', 'Ahn'], ['송', 'Song'], ['전', 'Jeon'], ['홍', 'Hong'],
-        ['유', 'Yoo'], ['고', 'Ko'], ['문', 'Moon'], ['양', 'Yang'], ['손', 'Son'], ['배', 'Bae'], ['백', 'Baek'], ['허', 'Heo'], ['남', 'Nam'], ['심', 'Shim'],
+        ['김', 'Kim', '金'], ['이', 'Lee', '李'], ['박', 'Park', '朴'], ['최', 'Choi', '崔'], ['정', 'Jung', '鄭'], ['강', 'Kang', '姜'], ['윤', 'Yoon', '尹'], ['한', 'Han', '韓'], ['서', 'Seo', '徐'], ['신', 'Shin', '申'],
+        ['조', 'Jo', '趙'], ['장', 'Jang', '張'], ['임', 'Lim', '林'], ['오', 'Oh', '吳'], ['권', 'Kwon', '權'], ['황', 'Hwang', '黃'], ['안', 'Ahn', '安'], ['송', 'Song', '宋'], ['전', 'Jeon', '全'], ['홍', 'Hong', '洪'],
+        ['유', 'Yoo', '劉'], ['고', 'Ko', '高'], ['문', 'Moon', '文'], ['양', 'Yang', '梁'], ['손', 'Son', '孫'], ['배', 'Bae', '裵'], ['백', 'Baek', '白'], ['허', 'Heo', '許'], ['남', 'Nam', '南'], ['심', 'Shim', '沈'],
+        ['류', 'Ryu', '柳'], ['노', 'Noh', '盧'], ['하', 'Ha', '河'], ['곽', 'Kwak', '郭'], ['성', 'Sung', '成'], ['차', 'Cha', '車'],
+        ['구', 'Koo', '具'], ['우', 'Woo', '禹'], ['주', 'Joo', '朱'], ['전', 'Jeon', '全'], ['나', 'Na', '羅'], ['민', 'Min', '閔'],
+        ['진', 'Jin', '陳'], ['지', 'Ji', '池'], ['엄', 'Eom', '嚴'], ['채', 'Chae', '蔡'], ['원', 'Won', '元'], ['천', 'Cheon', '千'],
+        ['방', 'Bang', '方'], ['공', 'Kong', '孔'], ['현', 'Hyun', '玄'],
       ],
       given: {
         female: [
-          ['서연', 'Seoyeon'], ['하윤', 'Hayoon'], ['은채', 'Eunchae'], ['수아', 'Sua'], ['다인', 'Dain'], ['예린', 'Yerin'], ['채원', 'Chaewon'], ['소희', 'Sohee'],
-          ['서윤', 'Seoyoon'], ['서현', 'Seohyun'], ['하은', 'Haeun'], ['민서', 'Minseo'], ['윤서', 'Yoonseo'], ['지아', 'Jia'], ['다은', 'Daeun'], ['은지', 'Eunji'],
-          ['지윤', 'Jiyoon'], ['예은', 'Yeeun'], ['소민', 'Somin'], ['아인', 'Ain'], ['시은', 'Sieun'], ['가은', 'Gaeun'], ['유나', 'Yuna'], ['서영', 'Seoyoung'],
-          ['민지', 'Minji'], ['수민', 'Sumin'], ['아란', 'Aran'], ['채영', 'Chaeyoung'], ['혜원', 'Hyewon'], ['유정', 'Yujeong'],
+          ['서연', 'Seoyeon', '瑞妍'], ['하윤', 'Hayoon', '夏潤'], ['은채', 'Eunchae', '恩彩'], ['수아', 'Sua', '秀雅'], ['다인', 'Dain', '多仁'], ['예린', 'Yerin', '藝潾'], ['채원', 'Chaewon', '彩媛'], ['소희', 'Sohee', '素熙'],
+          ['서윤', 'Seoyoon', '瑞允'], ['서현', 'Seohyun', '瑞賢'], ['하은', 'Haeun', '夏恩'], ['민서', 'Minseo', '旼序'], ['윤서', 'Yoonseo', '允瑞'], ['지아', 'Jia', '智雅'], ['다은', 'Daeun', '多恩'], ['은지', 'Eunji', '恩智'],
+          ['지윤', 'Jiyoon', '智允'], ['예은', 'Yeeun', '藝恩'], ['소민', 'Somin', '素旼'], ['아인', 'Ain', '雅仁'], ['시은', 'Sieun', '始恩'], ['가은', 'Gaeun', '佳恩'], ['유나', 'Yuna', '裕娜'], ['서영', 'Seoyoung', '瑞英'],
+          ['민지', 'Minji', '旼智'], ['수민', 'Sumin', '秀旼'], ['아란', 'Aran', '雅蘭'], ['채영', 'Chaeyoung', '彩英'], ['혜원', 'Hyewon', '惠媛'], ['유정', 'Yujeong', '裕貞'],
+          ['로아', 'Roa'], ['리아', 'Ria'], ['아윤', 'Ayoon', '雅潤'], ['하린', 'Harin', '夏潾'], ['나윤', 'Nayoon', '娜潤'], ['시현', 'Sihyun', '始賢'],
+          ['다미', 'Dami', '多美'], ['서아', 'Seoa', '瑞雅'], ['수연', 'Suyeon', '秀妍'], ['소율', 'Soyul', '素律'], ['설아', 'Seola', '雪雅'], ['나은', 'Naeun', '娜恩'],
+          ['윤아', 'Yoona', '允雅'], ['다희', 'Dahee', '多熙'], ['태희', 'Taehee', '泰熙'], ['은별', 'Eunbyeol'], ['아라', 'Ara'], ['예원', 'Yewon', '藝媛'],
+          ['예림', 'Yerim', '藝林'], ['예솔', 'Yesol'], ['가은', 'Gaeun', '佳恩'], ['영은', 'Youngeun', '英恩'], ['시은', 'Sieun', '始恩'], ['예빈', 'Yebin', '藝彬'],
+          ['지유', 'Jiyu', '智柔'], ['아진', 'Ajin', '雅珍'], ['연주', 'Yeonju', '姸珠'], ['하나', 'Hana'], ['세연', 'Seyeon', '世姸'], ['유연', 'Yuyeon', '柔姸'],
+          ['소윤', 'Soyoon', '素允'], ['은하', 'Eunha', '銀河'], ['서연', 'Seoyeon', '瑞妍'], ['은서', 'Eunseo', '恩瑞'], ['세라', 'Sera', '世羅'], ['주희', 'Joohee', '珠熙'],
+          ['혜영', 'Hyeyoung', '惠英'], ['윤영', 'Yoonyoung', '允英'], ['선영', 'Sunyoung', '善英'],
         ],
         male: [
-          ['도윤', 'Doyoon'], ['시우', 'Siwoo'], ['준혁', 'Junhyuk'], ['태오', 'Taeo'], ['현우', 'Hyunwoo'], ['재민', 'Jaemin'], ['승현', 'Seunghyun'], ['민재', 'Minjae'], ['건우', 'Gunwoo'],
-          ['민준', 'Minjun'], ['서준', 'Seojun'], ['예준', 'Yejun'], ['하준', 'Hajun'], ['지호', 'Jiho'], ['주원', 'Juwon'], ['우진', 'Woojin'], ['선우', 'Sunwoo'],
-          ['지훈', 'Jihoon'], ['은우', 'Eunwoo'], ['정우', 'Jungwoo'], ['승우', 'Seungwoo'], ['지환', 'Jihwan'], ['태현', 'Taehyun'], ['진우', 'Jinwoo'], ['민석', 'Minseok'],
-          ['도현', 'Dohyun'], ['동현', 'Donghyun'], ['재윤', 'Jaeyoon'],
+          ['도윤', 'Doyoon', '道允'], ['시우', 'Siwoo', '時宇'], ['준혁', 'Junhyuk', '俊赫'], ['태오', 'Taeo', '泰旿'], ['현우', 'Hyunwoo', '賢宇'], ['재민', 'Jaemin', '在旻'], ['승현', 'Seunghyun', '承賢'], ['민재', 'Minjae', '旻載'], ['건우', 'Gunwoo', '建宇'],
+          ['민준', 'Minjun', '旻俊'], ['서준', 'Seojun', '瑞俊'], ['예준', 'Yejun', '藝俊'], ['하준', 'Hajun', '夏俊'], ['지호', 'Jiho', '智浩'], ['주원', 'Juwon', '周元'], ['우진', 'Woojin', '宇鎭'], ['선우', 'Sunwoo', '善宇'],
+          ['지훈', 'Jihoon', '志勳'], ['은우', 'Eunwoo', '恩宇'], ['정우', 'Jungwoo', '正宇'], ['승우', 'Seungwoo', '承佑'], ['지환', 'Jihwan', '智煥'], ['태현', 'Taehyun', '泰賢'], ['진우', 'Jinwoo', '振宇'], ['민석', 'Minseok', '旻錫'],
+          ['도현', 'Dohyun', '道賢'], ['동현', 'Donghyun', '東賢'], ['재윤', 'Jaeyoon', '在允'],
+          ['이준', 'Ijun', '利俊'], ['로운', 'Roun'], ['수호', 'Suho', '守護'], ['유찬', 'Yuchan', '裕燦'], ['도훈', 'Dohoon', '道勳'], ['시안', 'Sian', '時安'],
+          ['정훈', 'Junghoon', '正勳'], ['성민', 'Sungmin', '成旻'], ['윤호', 'Yoonho', '允浩'], ['승민', 'Seungmin', '承旻'], ['재현', 'Jaehyun', '在賢'], ['준호', 'Junho', '俊浩'],
+          ['성현', 'Sunghyun', '聖賢'], ['진혁', 'Jinhyuk', '振赫'], ['준서', 'Junseo', '俊瑞'], ['건희', 'Gunhee', '建熙'], ['태윤', 'Taeyoon', '泰允'], ['민호', 'Minho', '旻浩'],
+          ['도운', 'Doun', '道雲'], ['기범', 'Kibum', '基範'], ['선우', 'Sunwoo', '善宇'], ['상현', 'Sanghyun', '相賢'], ['민우', 'Minwoo', '旻宇'], ['태양', 'Taeyang', '太陽'],
+          ['우혁', 'Woohyuk', '宇赫'], ['진우', 'Jinwoo', '振宇'], ['민재', 'Minjae', '旻載'],
         ],
         unisex: [
-          ['지우', 'Jiwoo'], ['유진', 'Yujin'], ['이안', 'Ian'], ['수빈', 'Subin'], ['지민', 'Jimin'], ['연우', 'Yeonwoo'], ['시윤', 'Siyoon'], ['아람', 'Aram'], ['유하', 'Yuha'],
+          ['지우', 'Jiwoo', '智友'], ['유진', 'Yujin', '有眞'], ['이안', 'Ian', '利安'], ['수빈', 'Subin', '秀彬'], ['지민', 'Jimin', '智旻'], ['연우', 'Yeonwoo', '然宇'], ['시윤', 'Siyoon', '詩允'], ['아람', 'Aram'], ['유하', 'Yuha', '柔河'],
+          ['지안', 'Jian', '智安'], ['하람', 'Haram'], ['이솔', 'Isol'], ['바다', 'Bada'], ['시우', 'Siwoo', '時宇'], ['노을', 'Noeul'],
+          ['지원', 'Jiwon', '志遠'], ['루다', 'Ruda'], ['이레', 'Ire'], ['시원', 'Siwon', '始元'], ['다온', 'Daon'], ['새론', 'Saeron'],
+          ['유원', 'Yuwon', '裕元'], ['정우', 'Jungwoo', '正宇'], ['가온', 'Gaon'], ['연희', 'Yeonhee', '姸熙'], ['한솔', 'Hansol'], ['예담', 'Yedam'],
+          ['은호', 'Eunho', '恩浩'], ['은성', 'Eunseong', '恩星'], ['보람', 'Boram'], ['여름', 'Yeoreum'], ['가을', 'Gaeul'], ['세림', 'Serim', '世林'],
+          ['주영', 'Jooyoung', '珠英'], ['유빈', 'Yubin', '有彬'], ['도희', 'Dohee', '道熙'], ['수현', 'Soohyun', '秀賢'], ['소리', 'Sori'], ['윤서', 'Yoonseo', '允瑞'],
+          ['아현', 'Ahyun', '雅賢'], ['수인', 'Suin', '秀仁'], ['세현', 'Sehyun', '世賢'], ['진솔', 'Jinsol', '眞率'], ['다인', 'Dain', '多仁'], ['유민', 'Yumin', '有旻'],
+          ['소희', 'Sohee', '素熙'], ['재림', 'Jaerim', '在林'], ['해경', 'Haekyung', '海景'], ['노아', 'Noa'], ['하경', 'Hakyung', '夏景'], ['이채', 'Ichae', '異彩'],
+          ['온', 'On'], ['현', 'Hyun', '賢'], ['봄', 'Bom'], ['유', 'Yu', '柔'], ['윤', 'Yoon', '允'], ['솔', 'Sol'],
+          ['휘', 'Hwi', '輝'], ['겸', 'Gyeom', '謙'], ['환', 'Hwan', '煥'], ['재희', 'Jaehee', '在熙'], ['해인', 'Haein', '海仁'], ['다빈', 'Dabin', '多彬'],
+          ['지현', 'Jihyun', '智賢'],
         ],
       },
     },
     jp: {
-      ko: '일본', order: 'east', spaceKo: true,
+      ko: '일본', region: 'asia', order: 'east', hanja: true, hanjaSpace: true, spaceKo: true,
       surnames: [
-        ['사토', 'Sato'], ['스즈키', 'Suzuki'], ['타카하시', 'Takahashi'], ['이치노세', 'Ichinose'], ['키리시마', 'Kirishima'], ['시노미야', 'Shinomiya'], ['아마미야', 'Amamiya'], ['쿠로사와', 'Kurosawa'],
-        ['타나카', 'Tanaka'], ['이토', 'Ito'], ['와타나베', 'Watanabe'], ['야마모토', 'Yamamoto'], ['나카무라', 'Nakamura'], ['코바야시', 'Kobayashi'], ['카토', 'Kato'],
-        ['요시다', 'Yoshida'], ['야마다', 'Yamada'], ['사사키', 'Sasaki'], ['야마구치', 'Yamaguchi'], ['사이토', 'Saito'], ['마츠모토', 'Matsumoto'], ['이노우에', 'Inoue'],
-        ['키무라', 'Kimura'], ['하야시', 'Hayashi'], ['시미즈', 'Shimizu'], ['야마자키', 'Yamazaki'], ['모리', 'Mori'], ['이케다', 'Ikeda'], ['하시모토', 'Hashimoto'],
-        ['호시노', 'Hoshino'], ['미야모토', 'Miyamoto'], ['쿠로다', 'Kuroda'], ['이시카와', 'Ishikawa'], ['나카지마', 'Nakajima'], ['오가와', 'Ogawa'],
+        ['사토', 'Sato', '佐藤'], ['스즈키', 'Suzuki', '鈴木'], ['타카하시', 'Takahashi', '高橋'], ['이치노세', 'Ichinose', '一ノ瀬'], ['키리시마', 'Kirishima', '霧島'], ['시노미야', 'Shinomiya', '四宮'], ['아마미야', 'Amamiya', '雨宮'], ['쿠로사와', 'Kurosawa', '黒沢'],
+        ['타나카', 'Tanaka', '田中'], ['이토', 'Ito', '伊藤'], ['와타나베', 'Watanabe', '渡辺'], ['야마모토', 'Yamamoto', '山本'], ['나카무라', 'Nakamura', '中村'], ['코바야시', 'Kobayashi', '小林'], ['카토', 'Kato', '加藤'],
+        ['요시다', 'Yoshida', '吉田'], ['야마다', 'Yamada', '山田'], ['사사키', 'Sasaki', '佐々木'], ['야마구치', 'Yamaguchi', '山口'], ['사이토', 'Saito', '斎藤'], ['마츠모토', 'Matsumoto', '松本'], ['이노우에', 'Inoue', '井上'],
+        ['키무라', 'Kimura', '木村'], ['하야시', 'Hayashi', '林'], ['시미즈', 'Shimizu', '清水'], ['야마자키', 'Yamazaki', '山崎'], ['모리', 'Mori', '森'], ['이케다', 'Ikeda', '池田'], ['하시모토', 'Hashimoto', '橋本'],
+        ['호시노', 'Hoshino', '星野'], ['미야모토', 'Miyamoto', '宮本'], ['쿠로다', 'Kuroda', '黒田'], ['이시카와', 'Ishikawa', '石川'], ['나카지마', 'Nakajima', '中島'], ['오가와', 'Ogawa', '小川'],
+        ['아사히나', 'Asahina', '朝比奈'], ['오오하라', 'Ohara', '大原'], ['이시타니', 'Ishitani', '石谷'], ['이와사키', 'Iwasaki', '岩崎'], ['하야시바라', 'Hayashibara', '林原'], ['이마이', 'Imai', '今井'],
+        ['시라카와', 'Shirakawa', '白川'], ['사사하라', 'Sasahara', '笹原'], ['카와사키', 'Kawasaki', '川崎'], ['나카하라', 'Nakahara', '中原'], ['니시나', 'Nishina', '仁科'], ['하세가와', 'Hasegawa', '長谷川'],
+        ['하나조노', 'Hanazono', '花園'], ['히라이', 'Hirai', '平井'], ['카토', 'Kato', '加藤'], ['시노다', 'Shinoda', '篠田'], ['아이자와', 'Aizawa', '相沢'], ['야다', 'Yada', '矢田'],
+        ['후루야', 'Furuya', '古谷'], ['모리야마', 'Moriyama', '森山'], ['시노미야', 'Shinomiya', '四宮'], ['이리에', 'Irie', '入江'], ['나라', 'Nara', '奈良'], ['아마미야', 'Amamiya', '雨宮'],
+        ['시이나', 'Shiina', '椎名'], ['미야와키', 'Miyawaki', '宮脇'], ['마츠이', 'Matsui', '松井'], ['사쿠라이', 'Sakurai', '桜井'],
       ],
       given: {
         female: [
-          ['하루카', 'Haruka'], ['유이', 'Yui'], ['린', 'Rin'], ['사쿠라', 'Sakura'], ['미오', 'Mio'], ['츠바키', 'Tsubaki'], ['시오리', 'Shiori'],
-          ['히나', 'Hina'], ['리오', 'Rio'], ['메이', 'Mei'], ['이치카', 'Ichika'], ['아카리', 'Akari'], ['미사키', 'Misaki'], ['칸나', 'Kanna'],
-          ['모모카', 'Momoka'], ['나나미', 'Nanami'], ['시즈쿠', 'Shizuku'], ['루나', 'Runa'], ['미유', 'Miyu'], ['코코네', 'Kokone'], ['호노카', 'Honoka'],
+          ['하루카', 'Haruka', '遥'], ['유이', 'Yui', '結衣'], ['린', 'Rin', '凛'], ['사쿠라', 'Sakura', '桜'], ['미오', 'Mio', '美桜'], ['츠바키', 'Tsubaki', '椿'], ['시오리', 'Shiori', '栞'],
+          ['히나', 'Hina', '陽菜'], ['리오', 'Rio', '莉緒'], ['메이', 'Mei', '芽依'], ['이치카', 'Ichika', '一花'], ['아카리', 'Akari', '朱里'], ['미사키', 'Misaki', '美咲'], ['칸나', 'Kanna', '環奈'],
+          ['모모카', 'Momoka', '桃花'], ['나나미', 'Nanami', '七海'], ['시즈쿠', 'Shizuku', '雫'], ['루나', 'Runa', '瑠菜'], ['미유', 'Miyu', '美優'], ['코코네', 'Kokone', '心音'], ['호노카', 'Honoka', '穂乃果'],
+          ['하나', 'Hana', '花'], ['히마리', 'Himari', '陽葵'], ['리코', 'Riko', '莉子'], ['나나', 'Nana', '奈々'], ['카논', 'Kanon', '花音'], ['코토네', 'Kotone', '琴音'],
+          ['유즈키', 'Yuzuki', '柚月'], ['히요리', 'Hiyori', '日和'], ['아이리', 'Airi', '愛莉'], ['유우카', 'Yuuka', '優花'], ['미사키', 'Misaki', '美咲'], ['안', 'An', '杏'],
+          ['나츠미', 'Natsumi', '夏美'], ['카스미', 'Kasumi', '霞'], ['후우카', 'Fuuka', '風花'], ['아야노', 'Ayano', '綾乃'], ['미츠요', 'Mitsuyo', '光代'], ['카즈하', 'Kazuha', '和葉'],
+          ['마오', 'Mao', '真央'], ['시오리', 'Shiori', '栞'], ['시호', 'Shiho', '志保'], ['마호', 'Maho', '真帆'], ['카나', 'Kana', '佳奈'], ['코코로', 'Kokoro', '心'],
+          ['나노카', 'Nanoka', '菜乃花'], ['나코', 'Nako', '奈子'], ['마후유', 'Mafuyu', '真冬'], ['사키', 'Saki', '咲'], ['미라이', 'Mirai', '未来'], ['사나에', 'Sanae', '早苗'],
+          ['사아야', 'Saaya', '紗綾'], ['카호', 'Kaho', '果歩'], ['아야카', 'Ayaka', '彩花'], ['아즈사', 'Azusa', '梓'], ['안즈', 'Anzu', '杏珠'], ['미유키', 'Miyuki', '美幸'],
         ],
         male: [
-          ['하루토', 'Haruto'], ['렌', 'Ren'], ['소마', 'Soma'], ['카이토', 'Kaito'], ['료', 'Ryo'], ['이츠키', 'Itsuki'],
-          ['미나토', 'Minato'], ['유마', 'Yuma'], ['소타', 'Sota'], ['리쿠', 'Riku'], ['유토', 'Yuto'], ['쇼', 'Sho'], ['타쿠미', 'Takumi'],
-          ['다이키', 'Daiki'], ['류노스케', 'Ryunosuke'], ['켄지', 'Kenji'], ['다이스케', 'Daisuke'],
+          ['하루토', 'Haruto', '陽翔'], ['렌', 'Ren', '蓮'], ['소마', 'Soma', '颯真'], ['카이토', 'Kaito', '海斗'], ['료', 'Ryo', '涼'], ['이츠키', 'Itsuki', '樹'],
+          ['미나토', 'Minato', '湊'], ['유마', 'Yuma', '悠真'], ['소타', 'Sota', '蒼太'], ['리쿠', 'Riku', '陸'], ['유토', 'Yuto', '悠斗'], ['쇼', 'Sho', '翔'], ['타쿠미', 'Takumi', '拓海'],
+          ['다이키', 'Daiki', '大輝'], ['류노스케', 'Ryunosuke', '龍之介'], ['켄지', 'Kenji', '健二'], ['다이스케', 'Daisuke', '大輔'],
+          ['토오루', 'Tohru', '透'], ['다이치', 'Daichi', '大地'], ['코우시', 'Koushi', '光志'], ['케이지', 'Keiji', '啓二'], ['타쿠야', 'Takuya', '拓也'], ['테츠야', 'Tetsuya', '哲也'],
+          ['이치로', 'Ichiro', '一郎'], ['료', 'Ryo', '涼'], ['히로시', 'Hiroshi', '博'], ['렌', 'Ren', '蓮'], ['하루토', 'Haruto', '陽翔'], ['에이타', 'Eita', '瑛太'],
+          ['소우', 'Sou', '蒼'], ['쇼', 'Sho', '翔'], ['토모야', 'Tomoya', '智也'], ['류노스케', 'Ryunosuke', '龍之介'], ['쿄헤이', 'Kyohei', '恭平'], ['켄타', 'Kenta', '健太'],
+          ['레이지', 'Reiji', '玲司'], ['료마', 'Ryoma', '亮真'], ['미노루', 'Minoru', '実'], ['슈야', 'Shuya', '修也'],
         ],
         unisex: [
-          ['히나타', 'Hinata'], ['아키라', 'Akira'], ['소라', 'Sora'], ['유키', 'Yuki'], ['카에데', 'Kaede'], ['마코토', 'Makoto'],
-          ['시온', 'Shion'], ['아오이', 'Aoi'], ['미즈키', 'Mizuki'],
+          ['히나타', 'Hinata', '陽向'], ['아키라', 'Akira', '明'], ['소라', 'Sora', '空'], ['유키', 'Yuki', '雪'], ['카에데', 'Kaede', '楓'], ['마코토', 'Makoto', '誠'],
+          ['시온', 'Shion', '紫苑'], ['아오이', 'Aoi', '葵'], ['미즈키', 'Mizuki', '瑞希'],
+          ['하루', 'Haru', '春'], ['히카리', 'Hikari', '光'], ['유우', 'Yuu', '優'], ['리츠', 'Ritsu', '律'], ['니키', 'Niki', '仁希'], ['아유무', 'Ayumu', '歩'],
+          ['아마네', 'Amane', '天音'], ['마코토', 'Makoto', '誠'], ['아키라', 'Akira', '明'], ['카에데', 'Kaede', '楓'],
         ],
       },
     },
     cn: {
-      ko: '중국', order: 'east', spaceKo: true,
-      surnames: [['왕', 'Wang'], ['리', 'Li'], ['장', 'Zhang'], ['천', 'Chen'], ['린', 'Lin'], ['선', 'Shen'], ['셰', 'Xie'], ['루', 'Lu']],
+      ko: '중국', region: 'asia', order: 'east', hanja: true, spaceKo: true,
+      surnames: [
+        ['왕', 'Wang', '王'], ['리', 'Li', '李'], ['장', 'Zhang', '张'], ['천', 'Chen', '陈'], ['린', 'Lin', '林'], ['선', 'Shen', '沈'], ['셰', 'Xie', '谢'], ['루', 'Lu', '陆'],
+        ['류', 'Liu', '刘'], ['양', 'Yang', '杨'], ['자오', 'Zhao', '赵'], ['황', 'Huang', '黄'], ['저우', 'Zhou', '周'], ['우', 'Wu', '吴'],
+        ['쉬', 'Xu', '徐'], ['쑨', 'Sun', '孙'], ['마', 'Ma', '马'], ['주', 'Zhu', '朱'], ['후', 'Hu', '胡'], ['궈', 'Guo', '郭'],
+        ['허', 'He', '何'], ['가오', 'Gao', '高'], ['뤄', 'Luo', '罗'], ['정', 'Zheng', '郑'], ['량', 'Liang', '梁'], ['탕', 'Tang', '唐'],
+      ],
       given: {
-        female: [['위란', 'Yulan'], ['샤오위', 'Xiaoyu'], ['링링', 'Lingling'], ['메이', 'Mei'], ['칭옌', 'Qingyan'], ['멍야오', 'Mengyao'], ['쯔한', 'Zihan'], ['신이', 'Xinyi']],
-        male: [['하오란', 'Haoran'], ['쯔쉬안', 'Zixuan'], ['이천', 'Yichen'], ['쥔제', 'Junjie'], ['무바이', 'Mubai'], ['윈셴', 'Yunxian'], ['톈유', 'Tianyou'], ['자오양', 'Zhaoyang']],
+        female: [
+          ['위란', 'Yulan', '玉兰'], ['샤오위', 'Xiaoyu', '晓雨'], ['링링', 'Lingling', '玲玲'], ['메이', 'Mei', '梅'], ['칭옌', 'Qingyan', '清妍'], ['멍야오', 'Mengyao', '梦瑶'], ['쯔한', 'Zihan', '子涵'], ['신이', 'Xinyi', '欣怡'],
+          ['이눠', 'Yinuo', '一诺'], ['신옌', 'Xinyan', '欣妍'], ['위퉁', 'Yutong', '雨桐'], ['자이', 'Jiayi', '佳怡'], ['위팅', 'Yuting', '雨婷'], ['신위에', 'Xinyue', '欣悦'],
+          ['위치', 'Yuqi', '雨琪'], ['멍치', 'Mengqi', '梦琪'], ['쯔옌', 'Ziyan', '紫嫣'], ['뤄시', 'Ruoxi', '若曦'], ['자위에', 'Jiayue', '佳悦'], ['쓰위', 'Siyu', '思雨'],
+          ['커신', 'Kexin', '可欣'], ['시위에', 'Xiyue', '希玥'], ['징이', 'Jingyi', '静怡'], ['위멍', 'Yumeng', '雨萌'], ['스한', 'Shihan', '诗涵'], ['쯔팅', 'Ziting', '梓婷'],
+        ],
+        male: [
+          ['하오란', 'Haoran', '浩然'], ['쯔쉬안', 'Zixuan', '子轩'], ['이천', 'Yichen', '奕辰'], ['쥔제', 'Junjie', '俊杰'], ['무바이', 'Mubai', '慕白'], ['윈셴', 'Yunxian', '云贤'], ['톈유', 'Tianyou', '天佑'], ['자오양', 'Zhaoyang', '朝阳'],
+          ['위쩌', 'Yuze', '宇泽'], ['쯔루이', 'Zirui', '梓睿'], ['하오위', 'Haoyu', '浩宇'], ['보원', 'Bowen', '博文'], ['밍제', 'Mingjie', '明杰'], ['쯔천', 'Zichen', '梓晨'],
+          ['젠위', 'Jianyu', '健宇'], ['신하오', 'Xinhao', '欣浩'], ['루이린', 'Ruilin', '瑞霖'], ['위항', 'Yuhang', '宇航'], ['자청', 'Jiacheng', '嘉诚'], ['쩌위', 'Zeyu', '泽宇'],
+          ['위샹', 'Yuxiang', '宇翔'], ['웨이쩌', 'Weize', '伟泽'], ['쥔시', 'Junxi', '俊熙'], ['위보', 'Yubo', '宇博'], ['하오쉬안', 'Haoxuan', '浩轩'], ['즈위안', 'Zhiyuan', '致远'],
+          ['징쩌', 'Jingze', '景泽'], ['무천', 'Muchen', '沐宸'],
+        ],
+        unisex: [
+          ['쯔한', 'Zihan', '子涵'], ['위한', 'Yuhan', '雨涵'], ['이쉬안', 'Yixuan', '亦轩'],
+        ],
+      },
+    },
+    // ---- 아래 나라들은 이름 목록을 다른 나라와 공유 (shares) ----
+    // trad: 한자를 번체자로 / surnameRoman: 성의 로마자·한글 표기 교체 [한자] → [한글, 로마자]
+    tw: {
+      ko: '대만', region: 'asia', shares: ['cn'], trad: true,
+      surnameRoman: {
+        張: ['장', 'Chang'], 陳: ['천', 'Chen'], 李: ['리', 'Lee'], 周: ['저우', 'Chou'], 徐: ['쉬', 'Hsu'],
+        謝: ['셰', 'Hsieh'], 趙: ['자오', 'Chao'], 鄭: ['정', 'Cheng'], 郭: ['궈', 'Kuo'], 何: ['허', 'Ho'],
+        高: ['가오', 'Kao'], 羅: ['뤄', 'Lo'], 朱: ['주', 'Chu'], 劉: ['류', 'Liu'], 黃: ['황', 'Huang'],
+      },
+    },
+    hk: {
+      ko: '홍콩', region: 'asia', shares: ['cn'], trad: true,
+      // 절반은 영어 이름 + 성 (예: 제이슨 웡)
+      englishGiven: { from: ['us', 'uk'], rate: 0.5 },
+      surnameRoman: {
+        王: ['웡', 'Wong'], 李: ['리', 'Lee'], 張: ['청', 'Cheung'], 陳: ['찬', 'Chan'], 林: ['람', 'Lam'],
+        沈: ['삼', 'Shum'], 謝: ['체', 'Tse'], 陸: ['룩', 'Luk'], 劉: ['라우', 'Lau'], 楊: ['영', 'Yeung'],
+        趙: ['치우', 'Chiu'], 黃: ['웡', 'Wong'], 周: ['차우', 'Chow'], 吳: ['응', 'Ng'], 徐: ['초이', 'Tsui'],
+        孫: ['쉰', 'Suen'], 馬: ['마', 'Ma'], 朱: ['추', 'Chu'], 胡: ['우', 'Wu'], 郭: ['궉', 'Kwok'],
+        何: ['호', 'Ho'], 高: ['코', 'Ko'], 羅: ['로', 'Law'], 鄭: ['쳉', 'Cheng'], 梁: ['렁', 'Leung'], 唐: ['통', 'Tong'],
       },
     },
     us: {
-      ko: '미국', order: 'west',
+      ko: '미국', region: 'americas', order: 'west',
+      // 하위 그룹: rate 확률로 성·이름을 모두 from 나라 목록에서 뽑고, 국적은 '{label} 미국인'으로 표기 (surnames 는 추가 성)
+      subgroups: [{ label: '히스패닉계', from: 'es', rate: 0.15 }],
       surnames: [
         ['포스터', 'Foster'], ['헤이스', 'Hayes'], ['브룩스', 'Brooks'], ['칼라일', 'Carlisle'], ['리드', 'Reed'], ['모건', 'Morgan'], ['설리번', 'Sullivan'], ['코너', 'Connor'],
-        ...ANGLO.surnames, ...US_HISPANIC,
+        ...ANGLO.surnames,
       ],
       given: {
         female: [['엘리너', 'Eleanor'], ['매디슨', 'Madison'], ['헤일리', 'Hailey'], ['오드리', 'Audrey'], ['클레어', 'Claire'], ['줄리아', 'Julia'], ['스텔라', 'Stella'], ['노라', 'Nora'], ...ANGLO.female],
@@ -149,7 +228,7 @@ window.PERSONA_DATA = {
       },
     },
     uk: {
-      ko: '영국', order: 'west',
+      ko: '영국', region: 'europe', order: 'west',
       surnames: [
         ['애쉬포드', 'Ashford'], ['블랙우드', 'Blackwood'], ['해링턴', 'Harrington'], ['윈슬로', 'Winslow'], ['펨브로크', 'Pembroke'], ['크롬웰', 'Cromwell'], ['헤이스팅스', 'Hastings'], ['에버렛', 'Everett'],
         ...ANGLO.surnames,
@@ -160,24 +239,164 @@ window.PERSONA_DATA = {
         unisex: [...ANGLO.unisex],
       },
     },
+    ca: {
+      ko: '캐나다', region: 'americas', shares: ['us', 'uk'],
+      subgroups: [{
+        label: '프랑스계', from: 'fr', rate: 0.2, // 퀘벡
+        surnames: [
+          ['트랑블레', 'Tremblay'], ['가뇽', 'Gagnon'], ['루아', 'Roy'], ['코테', 'Côté'], ['부샤르', 'Bouchard'], ['고티에', 'Gauthier'], ['모랭', 'Morin'],
+          ['라부아', 'Lavoie'], ['포르탱', 'Fortin'], ['가녜', 'Gagné'], ['우엘레', 'Ouellet'], ['펠티에', 'Pelletier'], ['벨랑제', 'Bélanger'], ['레베스크', 'Lévesque'],
+        ],
+      }],
+    },
+    au: { ko: '호주', region: 'oceania', shares: ['uk', 'us'] },
+    nz: { ko: '뉴질랜드', region: 'oceania', shares: ['uk', 'us'] },
+    mx: { ko: '멕시코', region: 'americas', shares: ['es'] },
+    ar: { ko: '아르헨티나', region: 'americas', shares: ['es', 'it'] },
+    cl: { ko: '칠레', region: 'americas', shares: ['es'] },
+    ie: {
+      ko: '아일랜드', region: 'europe', shares: ['uk'],
+      // 영국 목록 + 아일랜드 고유 이름 (rate: 고유 목록에서만 뽑을 확률)
+      extra: {
+        rate: 0.6,
+        surnames: [
+          ["머피", "Murphy"], ["켈리", "Kelly"], ["오설리번", "O'Sullivan"], ["월시", "Walsh"], ["오브라이언", "O'Brien"], ["번", "Byrne"], ["오코너", "O'Connor"], ["오닐", "O'Neill"],
+          ["도일", "Doyle"], ["매카시", "McCarthy"], ["갤러거", "Gallagher"], ["도허티", "Doherty"], ["케네디", "Kennedy"], ["린치", "Lynch"], ["머리", "Murray"], ["맥러플린", "McLoughlin"],
+          ["브레넌", "Brennan"], ["피츠제럴드", "Fitzgerald"], ["놀런", "Nolan"], ["패럴", "Farrell"], ["킨", "Keane"],
+        ],
+        given: {
+          female: [
+            ["이퍼", "Aoife"], ["시어셔", "Saoirse"], ["니브", "Niamh"], ["시번", "Siobhán"], ["키바", "Caoimhe"], ["로신", "Róisín"], ["클로다", "Clodagh"], ["올라", "Orla"],
+            ["애슐링", "Aisling"], ["키아라", "Ciara"], ["시네이드", "Sinéad"], ["그러니아", "Gráinne"], ["메이브", "Maeve"],
+          ],
+          male: [
+            ["숀", "Seán"], ["키언", "Cian"], ["어신", "Oisín"], ["코너", "Conor"], ["대러", "Darragh"], ["핀", "Finn"], ["타이그", "Tadhg"], ["킬리언", "Cillian"],
+            ["로넌", "Ronan"], ["데클런", "Declan"], ["오언", "Eoin"], ["나일", "Niall"], ["퍼드릭", "Pádraig"], ["코맥", "Cormac"],
+          ],
+        },
+      },
+    },
     fr: {
-      ko: '프랑스', order: 'west',
-      surnames: [['뒤부아', 'Dubois'], ['르페브르', 'Lefèvre'], ['모로', 'Moreau'], ['로랑', 'Laurent'], ['베르나르', 'Bernard'], ['퐁텐', 'Fontaine'], ['지라르', 'Girard'], ['드 라 쿠르', 'de la Cour']],
+      ko: '프랑스', region: 'europe', order: 'west',
+      surnames: [
+        ['뒤부아', 'Dubois'], ['르페브르', 'Lefèvre'], ['모로', 'Moreau'], ['로랑', 'Laurent'], ['베르나르', 'Bernard'], ['퐁텐', 'Fontaine'], ['지라르', 'Girard'], ['드 라 쿠르', 'de la Cour'],
+        ['마르탱', 'Martin'], ['르나르', 'Renard'], ['토마', 'Thomas'], ['프티', 'Petit'], ['로베르', 'Robert'], ['리샤르', 'Richard'],
+        ['뒤랑', 'Durand'], ['뒤부아', 'Dubois'], ['모로', 'Moreau'], ['로랑', 'Laurent'], ['시몽', 'Simon'], ['미셸', 'Michel'],
+        ['르페브르', 'Lefèvre'], ['르루아', 'Leroy'], ['루', 'Roux'], ['베르트랑', 'Bertrand'], ['모렐', 'Morel'], ['푸르니에', 'Fournier'],
+        ['보네', 'Bonnet'], ['뒤퐁', 'Dupont'], ['랑베르', 'Lambert'], ['퐁텐', 'Fontaine'], ['루소', 'Rousseau'], ['뱅상', 'Vincent'],
+        ['뮐러', 'Muller'], ['포르', 'Faure'], ['앙드레', 'André'], ['블랑', 'Blanc'], ['베르제', 'Berger'], ['로지에', 'Rosier'],
+        ['콜랭', 'Colin'], ['제르베', 'Gervais'],
+      ],
       given: {
-        female: [['엘로디', 'Élodie'], ['카미유', 'Camille'], ['마농', 'Manon'], ['셀린', 'Céline'], ['아멜리', 'Amélie'], ['클로에', 'Chloé'], ['소피', 'Sophie'], ['리즈', 'Lise']],
-        male: [['뤼시앵', 'Lucien'], ['가스파르', 'Gaspard'], ['앙투안', 'Antoine'], ['쥘', 'Jules'], ['테오', 'Théo'], ['레미', 'Rémy'], ['루이', 'Louis'], ['바티스트', 'Baptiste']],
+        female: [
+          ['엘로디', 'Élodie'], ['카미유', 'Camille'], ['마농', 'Manon'], ['셀린', 'Céline'], ['아멜리', 'Amélie'], ['클로에', 'Chloé'], ['소피', 'Sophie'], ['리즈', 'Lise'],
+          ['자드', 'Jade'], ['루이즈', 'Louise'], ['에마', 'Emma'], ['알리스', 'Alice'], ['앙브르', 'Ambre'], ['리나', 'Lina'],
+          ['로즈', 'Rose'], ['클로에', 'Chloé'], ['미아', 'Mia'], ['레아', 'Léa'], ['안나', 'Anna'], ['밀라', 'Mila'],
+          ['이네스', 'Inès'], ['줄리아', 'Julia'], ['레나', 'Léna'], ['조에', 'Zoé'], ['줄리엣', 'Juliette'], ['마농', 'Manon'],
+          ['아가트', 'Agathe'], ['클라라', 'Clara'], ['가랑스', 'Garance'], ['마르고', 'Margot'], ['로만', 'Romane'], ['루시', 'Lucie'],
+          ['샤를로트', 'Charlotte'], ['엘리즈', 'Élise'], ['마틸드', 'Mathilde'], ['오세안', 'Océane'], ['잔', 'Jeanne'],
+        ],
+        male: [
+          ['뤼시앵', 'Lucien'], ['가스파르', 'Gaspard'], ['앙투안', 'Antoine'], ['쥘', 'Jules'], ['테오', 'Théo'], ['레미', 'Rémy'], ['루이', 'Louis'], ['바티스트', 'Baptiste'],
+          ['가브리엘', 'Gabriel'], ['레오', 'Léo'], ['라파엘', 'Raphaël'], ['아르튀르', 'Arthur'], ['루이', 'Louis'], ['쥘', 'Jules'],
+          ['아담', 'Adam'], ['마엘', 'Maël'], ['루카', 'Luca'], ['노아', 'Noah'], ['리암', 'Liam'], ['폴', 'Paul'],
+          ['알렉상드르', 'Alexandre'], ['아론', 'Aaron'], ['막심', 'Maxime'], ['테오', 'Théo'], ['클레망', 'Clément'], ['니콜라', 'Nicolas'],
+          ['기욤', 'Guillaume'], ['아드리앙', 'Adrien'], ['줄리앵', 'Julien'], ['피에르', 'Pierre'], ['마티스', 'Mathis'], ['엘리엇', 'Eliott'],
+          ['에르베', 'Hervé'], ['웨슬리', 'Wesley'], ['제레미', 'Jérémy'], ['아르센', 'Arsène'], ['노엘', 'Noël'], ['닐', 'Nil'],
+          ['로랑', 'Laurent'], ['로베르', 'Robert'],
+        ],
+        unisex: [
+          ['카미유', 'Camille'], ['사샤', 'Sacha'],
+        ],
       },
     },
     de: {
-      ko: '독일', order: 'west',
-      surnames: [['슈바르츠', 'Schwarz'], ['베버', 'Weber'], ['하르트만', 'Hartmann'], ['폰 아이헨', 'von Eichen'], ['뮐러', 'Müller'], ['크라우제', 'Krause'], ['로젠탈', 'Rosenthal'], ['베커', 'Becker']],
+      ko: '독일', region: 'europe', order: 'west',
+      surnames: [
+        ['슈바르츠', 'Schwarz'], ['베버', 'Weber'], ['하르트만', 'Hartmann'], ['폰 아이헨', 'von Eichen'], ['뮐러', 'Müller'], ['크라우제', 'Krause'], ['로젠탈', 'Rosenthal'], ['베커', 'Becker'],
+        ['뮐러', 'Müller'], ['슈미트', 'Schmidt'], ['슈나이더', 'Schneider'], ['피셔', 'Fischer'], ['베버', 'Weber'], ['마이어', 'Meyer'],
+        ['바그너', 'Wagner'], ['베커', 'Becker'], ['슐츠', 'Schulz'], ['호프만', 'Hoffmann'], ['셰퍼', 'Schäfer'], ['코흐', 'Koch'],
+        ['바우어', 'Bauer'], ['리히터', 'Richter'], ['클라인', 'Klein'], ['볼프', 'Wolf'], ['슈뢰더', 'Schröder'], ['노이만', 'Neumann'],
+        ['슈바르츠', 'Schwarz'], ['브라운', 'Braun'], ['크뤼거', 'Krüger'], ['하르트만', 'Hartmann'], ['랑게', 'Lange'], ['켈러', 'Keller'],
+        ['베르너', 'Werner'], ['크라우제', 'Krause'], ['레만', 'Lehmann'], ['하인리히', 'Heinrich'], ['쾨니히', 'König'],
+      ],
       given: {
-        female: [['클라라', 'Clara'], ['리젤', 'Liesel'], ['한나', 'Hanna'], ['프리다', 'Frieda'], ['마를레네', 'Marlene'], ['엠마', 'Emma'], ['레아', 'Lea'], ['이레네', 'Irene']],
-        male: [['루카스', 'Lukas'], ['펠릭스', 'Felix'], ['막시밀리안', 'Maximilian'], ['요나스', 'Jonas'], ['레온', 'Leon'], ['에리히', 'Erich'], ['크리스토프', 'Christoph'], ['파울', 'Paul']],
+        female: [
+          ['클라라', 'Clara'], ['리젤', 'Liesel'], ['한나', 'Hanna'], ['프리다', 'Frieda'], ['마를레네', 'Marlene'], ['엠마', 'Emma'], ['레아', 'Lea'], ['이레네', 'Irene'],
+          ['엠마', 'Emma'], ['미아', 'Mia'], ['한나', 'Hanna'], ['에밀리아', 'Emilia'], ['소피아', 'Sophia'], ['리나', 'Lina'],
+          ['안나', 'Anna'], ['밀라', 'Mila'], ['클라라', 'Clara'], ['레아', 'Lea'], ['마리', 'Marie'], ['레나', 'Lena'],
+          ['루이사', 'Luisa'], ['레오니', 'Leonie'], ['레니', 'Leni'], ['에밀리', 'Emilie'], ['아멜리', 'Amelie'], ['프리다', 'Frieda'],
+          ['마틸다', 'Mathilda'], ['요한나', 'Johanna'], ['율리아', 'Julia'], ['사라', 'Sarah'], ['라우라', 'Laura'], ['넬레', 'Nele'],
+          ['샬로트', 'Charlotte'], ['조피', 'Sophie'], ['빅토리아', 'Viktoria'], ['카타리나', 'Katharina'], ['니나', 'Nina'],
+        ],
+        male: [
+          ['루카스', 'Lukas'], ['펠릭스', 'Felix'], ['막시밀리안', 'Maximilian'], ['요나스', 'Jonas'], ['레온', 'Leon'], ['에리히', 'Erich'], ['크리스토프', 'Christoph'], ['파울', 'Paul'],
+          ['레온', 'Leon'], ['벤', 'Ben'], ['핀', 'Finn'], ['요나스', 'Jonas'], ['엘리아스', 'Elias'], ['루이스', 'Luis'],
+          ['펠릭스', 'Felix'], ['노아', 'Noah'], ['루카스', 'Lukas'], ['막시밀리안', 'Maximilian'], ['에밀', 'Emil'], ['루카', 'Luca'],
+          ['율리안', 'Julian'], ['마테오', 'Matteo'], ['오스카', 'Oskar'], ['안톤', 'Anton'], ['필립', 'Philipp'], ['야코프', 'Jakob'],
+          ['밀란', 'Milan'], ['모리츠', 'Moritz'], ['율리우스', 'Julius'], ['요하네스', 'Johannes'], ['알렉산더', 'Alexander'], ['다비드', 'David'],
+          ['플로리안', 'Florian'], ['발렌틴', 'Valentin'], ['토비아스', 'Tobias'], ['크리스티안', 'Christian'], ['에리히', 'Erich'], ['디트리히', 'Dietrich'],
+          ['프리드리히', 'Friedrich'], ['알프레드', 'Alfred'], ['로베르트', 'Robert'], ['레오폴트', 'Leopold'], ['아르노', 'Arno'],
+        ],
+      },
+    },
+    it: {
+      ko: '이탈리아', region: 'europe', order: 'west',
+      surnames: [
+        ['로시', 'Rossi'], ['루소', 'Russo'], ['페라리', 'Ferrari'], ['에스포지토', 'Esposito'], ['비앙키', 'Bianchi'], ['로마노', 'Romano'],
+        ['콜롬보', 'Colombo'], ['리치', 'Ricci'], ['마리노', 'Marino'], ['그레코', 'Greco'], ['브루노', 'Bruno'], ['갈로', 'Gallo'],
+        ['콘티', 'Conti'], ['데 루카', 'De Luca'], ['코스타', 'Costa'], ['조르다노', 'Giordano'], ['만치니', 'Mancini'], ['리초', 'Rizzo'],
+        ['롬바르디', 'Lombardi'], ['모레티', 'Moretti'], ['바르비에리', 'Barbieri'], ['폰타나', 'Fontana'], ['산토로', 'Santoro'], ['마리아니', 'Mariani'],
+        ['리날디', 'Rinaldi'], ['카루소', 'Caruso'], ['페라라', 'Ferrara'], ['갈리', 'Galli'], ['마르티니', 'Martini'], ['레오네', 'Leone'],
+      ],
+      given: {
+        female: [
+          ['로레타', 'Loretta'], ['소피아', 'Sofia'], ['줄리아', 'Giulia'], ['아우로라', 'Aurora'], ['알리체', 'Alice'], ['지네브라', 'Ginevra'],
+          ['엠마', 'Emma'], ['조르자', 'Giorgia'], ['그레타', 'Greta'], ['베아트리체', 'Beatrice'], ['마르티나', 'Martina'], ['키아라', 'Chiara'],
+          ['비토리아', 'Vittoria'], ['사라', 'Sara'], ['알레시아', 'Alessia'], ['프란체스카', 'Francesca'], ['노에미', 'Noemi'], ['니콜', 'Nicole'],
+          ['비앙카', 'Bianca'], ['아리안나', 'Arianna'], ['마틸데', 'Matilde'], ['엘레나', 'Elena'], ['카밀라', 'Camilla'], ['루도비카', 'Ludovica'],
+          ['마르게리타', 'Margherita'], ['세레나', 'Serena'], ['이사벨라', 'Isabella'], ['일라리아', 'Ilaria'], ['발렌티나', 'Valentina'], ['로베르타', 'Roberta'],
+          ['라우라', 'Laura'],
+        ],
+        male: [
+          ['레오나르도', 'Leonardo'], ['프란체스코', 'Francesco'], ['알레산드로', 'Alessandro'], ['로렌초', 'Lorenzo'], ['마티아', 'Mattia'], ['안드레아', 'Andrea'],
+          ['가브리엘레', 'Gabriele'], ['리카르도', 'Riccardo'], ['토마소', 'Tommaso'], ['에도아르도', 'Edoardo'], ['마테오', 'Matteo'], ['주세페', 'Giuseppe'],
+          ['안토니오', 'Antonio'], ['조반니', 'Giovanni'], ['줄리오', 'Giulio'], ['필리포', 'Filippo'], ['마르코', 'Marco'], ['피에트로', 'Pietro'],
+          ['사무엘레', 'Samuele'], ['알레시오', 'Alessio'], ['디에고', 'Diego'], ['다비데', 'Davide'], ['페데리코', 'Federico'], ['크리스티안', 'Christian'],
+          ['발레리오', 'Valerio'], ['빈첸초', 'Vincenzo'], ['루이지', 'Luigi'], ['로베르토', 'Roberto'], ['스테파노', 'Stefano'], ['파올로', 'Paolo'],
+        ],
+      },
+    },
+    es: {
+      ko: '스페인', region: 'europe', order: 'west',
+      surnames: [
+        ['가르시아', 'García'], ['페르난데스', 'Fernández'], ['곤살레스', 'González'], ['로드리게스', 'Rodríguez'], ['로페스', 'López'], ['마르티네스', 'Martínez'],
+        ['산체스', 'Sánchez'], ['페레스', 'Pérez'], ['고메스', 'Gómez'], ['마르틴', 'Martín'], ['루이스', 'Ruiz'], ['에르난데스', 'Hernández'],
+        ['히메네스', 'Jiménez'], ['디아스', 'Díaz'], ['알바레스', 'Álvarez'], ['모레노', 'Moreno'], ['무뇨스', 'Muñoz'], ['알론소', 'Alonso'],
+        ['구티에레스', 'Gutiérrez'], ['로메로', 'Romero'], ['나바로', 'Navarro'], ['토레스', 'Torres'], ['도밍게스', 'Domínguez'], ['라미레스', 'Ramírez'],
+        ['블랑코', 'Blanco'], ['아길라르', 'Aguilar'], ['크루스', 'Cruz'], ['오르티스', 'Ortiz'], ['실바', 'Silva'], ['레예스', 'Reyes'],
+        ['멘데스', 'Méndez'], ['마르코스', 'Marcos'],
+      ],
+      given: {
+        female: [
+          ['루시아', 'Lucía'], ['마르티나', 'Martina'], ['소피아', 'Sofía'], ['마리아', 'María'], ['발레리아', 'Valeria'], ['훌리아', 'Julia'],
+          ['파울라', 'Paula'], ['다니엘라', 'Daniela'], ['카를라', 'Carla'], ['알바', 'Alba'], ['노아', 'Noa'], ['카르멘', 'Carmen'],
+          ['클라우디아', 'Claudia'], ['발렌티나', 'Valentina'], ['알마', 'Alma'], ['아나', 'Ana'], ['라우라', 'Laura'], ['엘레나', 'Elena'],
+          ['블랑카', 'Blanca'], ['아이타나', 'Aitana'], ['베가', 'Vega'], ['롤라', 'Lola'], ['빅토리아', 'Victoria'], ['카밀라', 'Camila'],
+          ['이사벨', 'Isabel'], ['안토니아', 'Antonia'], ['실비아', 'Silvia'], ['베아트리스', 'Beatriz'], ['나탈리아', 'Natalia'], ['에스텔라', 'Estela'],
+          ['로사나', 'Rosana'],
+        ],
+        male: [
+          ['알레한드로', 'Alejandro'], ['마테오', 'Mateo'], ['우고', 'Hugo'], ['마르틴', 'Martín'], ['루카스', 'Lucas'], ['레오', 'Leo'],
+          ['다니엘', 'Daniel'], ['파블로', 'Pablo'], ['마누엘', 'Manuel'], ['알바로', 'Álvaro'], ['아드리안', 'Adrián'], ['다비드', 'David'],
+          ['마리오', 'Mario'], ['엔조', 'Enzo'], ['디에고', 'Diego'], ['마르코스', 'Marcos'], ['이산', 'Izan'], ['하비에르', 'Javier'],
+          ['마르코', 'Marco'], ['티아고', 'Thiago'], ['카를로스', 'Carlos'], ['호르헤', 'Jorge'], ['안토니오', 'Antonio'], ['미겔', 'Miguel'],
+          ['후안', 'Juan'], ['가브리엘', 'Gabriel'], ['펠리페', 'Felipe'], ['안드레스', 'Andrés'], ['이그나시오', 'Ignacio'], ['로드리고', 'Rodrigo'],
+        ],
       },
     },
     ru: {
-      ko: '러시아', order: 'west',
+      ko: '러시아', region: 'europe', order: 'west',
       // 부칭(아버지 이름에서 만든 중간 이름) 중 규칙을 따르지 않는 것: [남성형, 여성형]
       patronymicExceptions: {
         Pavel: [['파블로비치', 'Pavlovich'], ['파블로브나', 'Pavlovna']],
@@ -436,6 +655,15 @@ window.PERSONA_DATA = {
     { ko: '팔의 문신', tag: 'arm tattoo' },
     { ko: '짙은 다크서클', tag: 'eyebags' },
     { ko: '볼의 반창고', tag: 'bandaid on face' },
+    { ko: '혀 피어싱', tag: 'tongue piercing' },
+    { ko: '목의 문신', tag: 'neck tattoo' },
+    { ko: '등의 문신', tag: 'back tattoo' },
+    { ko: '배의 문신', tag: 'stomach tattoo' },
+    { ko: '허벅지 문신', tag: 'thigh tattoo' },
+    { ko: '손목 문신', tag: 'wrist tattoo' },
+    { ko: '어깨 문신', tag: 'shoulder tattoo' },
+    { ko: '손등 문신', tag: 'hand tattoo' },
+    { ko: '가슴팍 문신', tag: 'chest tattoo' },
   ],
 
   // {c} = 옷 색 (clothColors에서 랜덤, 한 벌 안에서는 같은 색)
@@ -489,18 +717,38 @@ window.PERSONA_DATA = {
     '비 오는 날', '블랙커피', '단 음식', '고양이', '오래된 영화', '새벽 산책', '향초', '따뜻한 차',
     '칭찬받는 것', '조용한 서점', '바다', '위스키', '손편지', '빈티지 소품', '매운 음식', '별 보기',
     '강아지', '늦잠', '재즈', '겨울',
+    '민트초코', '드라이브', '식물 가꾸기', '정리정돈', '필기구 수집', '사진 찍기',
+    '혼자 있는 시간', '새 책 냄새', 'LP판', '요리하는 것', '비행기 창가 자리', '낮잠',
+    '푹신한 이불', '샤워 후 마시는 맥주', '새로운 도전', '햇볕 쬐기', 'ASMR', '추리소설',
+    '보드게임', '즉흥적인 여행', '비 오는 날 흙냄새', '스킨십', '눈 오는 날', '전시회 관람',
+    '심야 라디오', '가죽 냄새', '가벼운 장난', '드립 커피', '오래된 물건',
   ],
 
   dislikes: [
     '시끄러운 곳', '거짓말', '오이', '기다리는 것', '벌레', '무례한 사람', '동정받는 것',
     '계획이 틀어지는 것', '뜨거운 음식', '병원', '천둥', '아침', '사람 많은 곳', '단 음식',
     '여름', '매운 음식', '빚지는 것', '고양이',
+    '파인애플 피자', '민트초코', '고수', '담배 냄새', '습하고 끈적이는 날씨', '스킨십',
+    '잔소리', '갑자기 걸려오는 전화', '지나친 관심', '뒷담화', '땀 흘리는 것', '맛없는 음식으로 배 채우는 것',
+    '흐지부지 끝나는 것', '규칙에 얽매이는 것', '반복되는 일상', '당일 약속 취소', '눈을 똑바로 쳐다보는 것', '너무 밝은 형광등 불빛',
+    '쓴 약', '선을 넘는 장난', '어색한 침묵', '훈수 두는 사람', '답장 늦는 것', '복잡한 설명',
+    '밀가루 음식', '더러운 책상',
   ],
 
   hobbies: [
     '독서', '요리', '러닝', '사진 촬영', '보드게임', '영화 감상', '식물 키우기', '뜨개질', '복싱',
     '드라이브', '게임', '그림 그리기', '레코드 수집', '베이킹', '수영', '퍼즐', '칵테일 만들기',
     '캠핑', '피아노 연주', '서예',
+    '등산', '클라이밍', '자전거 타기', '서핑', '스쿠버다이빙', '낚시',
+    '스케이트보드', '요가', '필라테스', '도자기 공예', '목공', '가죽 공예',
+    '향수 만들기', '미니어처 조립', '프라모델 조립', '다이어리 꾸미기', '체스', '타로카드 점보기',
+    '외국어 공부', '맛집 탐방', '카페 투어', '전시회 관람', '피규어 수집', '빈티지 옷 쇼핑',
+    '블로그 운영', '브이로그 촬영', '웹소설 읽기', '만화책 수집', '십자수', '일기 쓰기',
+    '테니스', '골프', '볼링', '방탈출 카페 가기', '천체 관측', '꽃꽂이',
+    '풍경 스케치', '와인 시음', '스도쿠', '스쿠터 타기', 'LP 청음', '야구 관람',
+    '스트릿 댄스', '캘리그라피', '인테리어 소품 수집', '폴라로이드 사진 찍기', '시 쓰기', '지도 그리기',
+    '노래 부르기', '화폐 · 동전 수집', '수수께끼 풀기', '낮잠', '불멍', '자수 놓기',
+    '유적 · 폐허 탐험',
   ],
 
   habits: [
@@ -538,6 +786,12 @@ window.PERSONA_DATA = {
   weaknesses: [
     '술에 약함', '칭찬에 약함', '동물 앞에서 무장해제', '거절을 못 함', '길치', '기계치',
     '추위를 많이 탐', '눈물에 약함', '간지럼을 많이 탐', '고소공포증',
+    '더위를 많이 탐', '수영을 전혀 못 함', '거짓말하면 얼굴에 다 티가 남', '귀가 얇음', '피를 보면 기절함', '어둠을 무서워함',
+    '아이들을 대하기 어려워함', '매운 것을 전혀 못 먹음', '끔찍한 요리 실력', '심한 악필', '사람 이름과 얼굴을 잘 못 외움', '스킨십을 받으면 고장 남',
+    '미인 · 미남에게 한없이 약함', '물건을 자주 잃어버림', '아침에 쉽게 못 일어남', '경제 관념이 없음', '벌레만 보면 굳어버림', '폐소공포증',
+    '멀티태스킹 불가', '눈치가 심하게 없음', '집중하면 주변 소리를 못 들음', '선단공포증 (뾰족한 것을 무서워함)', '무서운 이야기나 영화에 기겁함', '단순한 도발에 쉽게 넘어감',
+    '끔찍한 패션 감각', '불면증', '심해공포증 (깊은 물을 무서워함)', '체력이 몹시 약함', '부탁하는 걸 죽기보다 싫어함', '정리에 소질이 없음',
+    '타인의 시선을 과하게 의식함', '알약을 잘 못 삼킴',
   ],
 
   families: [
