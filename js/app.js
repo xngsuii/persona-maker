@@ -140,6 +140,12 @@
       if (surNation.hanja && givenNation.hanja && (sur[2] || given[2])) {
         const sep = surNation === givenNation && !surNation.hanjaSpace ? '' : ' ';
         east.hanja = `${sur[2] || sur[0]}${sep}${given[2] || given[0]}`;
+        // 중국·대만·홍콩 이름은 한국 한자음 표기도 만들어 둔다 (표시는 옵션에 따라)
+        if (surNation.sinoRead && givenNation.sinoRead && sur[2] && given[2]) {
+          const a = sinoRead(sur[2]);
+          const b = sinoRead(given[2]);
+          if (a && b) east.sino = a + b;
+        }
       }
       return east;
     }
@@ -198,10 +204,37 @@
 
   // 간체 → 번체 (중국 이름 데이터에 쓰인 글자만)
   const TRAD = Object.fromEntries(
-    [...'张張陈陳谢謝陆陸刘劉杨楊赵趙黄黃吴吳孙孫马馬罗羅郑鄭兰蘭晓曉梦夢瑶瑤诺諾悦悅静靜诗詩轩軒杰傑云雲贤賢阳陽泽澤诚誠伟偉远遠']
+    [...'张張陈陳谢謝陆陸刘劉杨楊赵趙黄黃吴吳孙孫马馬罗羅郑鄭兰蘭晓曉梦夢瑶瑤诺諾悦悅静靜诗詩轩軒杰傑云雲贤賢阳陽泽澤诚誠伟偉远遠韩韓邓鄧吕呂苏蘇蒋蔣叶葉钟鍾谭譚邹鄒龙龍钱錢赖賴丽麗华華洁潔语語岚嵐飞飛强強国國树樹鹏鵬涛濤军軍乐樂宁寧凯凱']
       .reduce((acc, ch, i, arr) => (i % 2 ? acc : [...acc, [ch, arr[i + 1]]]), []),
   );
   const toTrad = (str) => [...str].map((ch) => TRAD[ch] || ch).join('');
+
+  // 한국 한자음 (간체 기준. 번체는 TRAD 를 거꾸로 써서 찾는다)
+  const SIMP = Object.fromEntries(Object.entries(TRAD).map(([a, b]) => [b, a]));
+  const SINO = Object.fromEntries(
+    [...'一일丁정丽려乐락云운亦역任임伟위佑우何하余여佩패佳가依의侯후俊준修수健건傅부兰란军군凡범凯개刘류勇용华화博박可가叶엽吕려君군吴오周주哲철唐당嘉가国국墨묵夏하天천奕혁妍연姚요婉완婷정嫣언子자孔공孙손孟맹宁녕宇우安안宸신尹윤岚람崔최希희常상康강廖료建건张장强강彭팽徐서志지思사怡이悦열慕모慧혜戴대承승振진敏민文문方방昊호明명昱욱晓효晨신景경晴청曦희曹조曾증月월朝조朱주李리杜두杨양杰걸林림树수桂계桐동梁량梅매梓재梦몽欣흔段단沈심沐목泽택洁결洛락浩호涛도涵함淑숙清청然연熊웅熙희燕연玉옥王왕玥월玲령珊산琛침琪기琳림瑞서瑶요田전白백睿예知지石석磊뢰秀수秦진窈요紫자罗라翔상胡호致치舒서航항芬분苏소若약英영范범萌맹董동蒋장蓉용蔡채薇미薛설行행袁원诗시诚성语어诺낙谢사谭담贤현赖뢰赵조轩헌辰진远원逸일邓등邵소邹추郑정郝학郭곽采채金김钟종钱전阳양陆륙陈진雅아雨우雪설雷뢰霖림青청静정韩한顾고飞비马마高고魏위鹏붕黄황龙룡'].reduce((acc, ch, i, arr) => (i % 2 ? acc : [...acc, [ch, arr[i + 1]]]), []),
+  );
+
+  // 두음법칙: 첫 글자의 ㄹ·ㄴ 초성을 바꾼다 (李 리 → 이, 羅 라 → 나, 寧 녕 → 영)
+  function initialLaw(ch) {
+    const code = ch.charCodeAt(0) - 0xAC00;
+    if (code < 0 || code > 11171) return ch;
+    const cho = Math.floor(code / 588);
+    const jung = Math.floor((code % 588) / 28);
+    const jong = code % 28;
+    const soft = [2, 3, 6, 7, 12, 17, 20]; // ㅑ ㅒ ㅕ ㅖ ㅛ ㅠ ㅣ
+    let next = cho;
+    if (cho === 5) next = soft.includes(jung) ? 11 : 2;   // ㄹ → ㅇ 또는 ㄴ
+    else if (cho === 2 && soft.includes(jung)) next = 11; // ㄴ → ㅇ
+    return String.fromCharCode(0xAC00 + (next * 21 + jung) * 28 + jong);
+  }
+
+  // 한자를 한국 한자음으로 (성·이름 각각 첫 글자에 두음법칙)
+  function sinoRead(hanja) {
+    const out = [...hanja].map((ch) => SINO[ch] || SINO[SIMP[ch]] || null);
+    if (out.some((x) => !x)) return null;
+    return initialLaw(out[0]) + out.slice(1).join('');
+  }
 
   // shares 가 있는 나라는 다른 나라의 이름 목록을 복사해 쓴다 (표기만 그 나라에 맞게)
   function buildSharedNations() {
@@ -561,7 +594,7 @@
 
   function toMarkdown(p, o) {
     const full = o.patronymic && p.name.full;
-    const out = [`# ${p.name.ko} (${p.name.en})`, ''];
+    const out = [`# ${o.sino && p.name.sino ? p.name.sino : p.name.ko} (${p.name.en})`, ''];
     if (full) out.push(`> ${full.ko} (${full.en})`, '>');
     if (o.hanja && p.name.hanja) out.push(`> ${p.name.hanja}`, '>');
     out.push(`> ${summaryLine(p, o)}`, '');
@@ -657,7 +690,8 @@
       hMin: cm($('#heightMin')),
       hMax: cm($('#heightMax')),
       fantasy: $('#optFantasy').checked,
-      prompt: $('#optPrompt').checked,
+      prompt: true, // 이미지 프롬프트는 항상 함께 만든다
+      sino: $('#optSino').checked,
       patronymic: $('#optPatronymic').checked,
       hanja: $('#optHanja').checked,
       pickerFolded: $('#pickBody').hidden,
@@ -685,7 +719,7 @@
     $('#heightMin').value = o.hMin ?? '';
     $('#heightMax').value = o.hMax ?? '';
     if (typeof o.fantasy === 'boolean') $('#optFantasy').checked = o.fantasy;
-    if (typeof o.prompt === 'boolean') $('#optPrompt').checked = o.prompt;
+    if (typeof o.sino === 'boolean') $('#optSino').checked = o.sino;
     if (typeof o.patronymic === 'boolean') $('#optPatronymic').checked = o.patronymic;
     if (typeof o.hanja === 'boolean') $('#optHanja').checked = o.hanja;
     setPickerFolded(o.pickerFolded === true);
@@ -813,7 +847,7 @@
 
     el.innerHTML = `<div class="r-body">
       <p class="r-kicker">PERSONA RECEIPT</p>
-      <h1 class="r-name rr" role="button" tabindex="0" data-row="name" title="이름만 다시 뽑기">${esc(p.name.ko)}</h1>
+      <h1 class="r-name rr" role="button" tabindex="0" data-row="name" title="이름만 다시 뽑기">${esc(o.sino && p.name.sino ? p.name.sino : p.name.ko)}</h1>
       ${o.patronymic && p.name.full ? `<p class="r-fullname">${esc(p.name.full.ko)}</p>` : ''}
       ${o.hanja && p.name.hanja ? `<p class="r-fullname">${esc(p.name.hanja)}</p>` : ''}
       <p class="r-roman">${esc(o.patronymic && p.name.full ? p.name.full.en : p.name.en)}</p>
@@ -983,13 +1017,10 @@
     });
     $('#optPatronymic').addEventListener('change', renderAll);
     $('#optHanja').addEventListener('change', renderAll);
+    $('#optSino').addEventListener('change', renderAll);
     $('#pickFold').addEventListener('click', () => {
       setPickerFolded(!$('#pickBody').hidden);
       saveOptions();
-    });
-    $('#optPrompt').addEventListener('change', (e) => {
-      if (!e.target.checked) state.extras = null;
-      renderAll();
     });
 
     $('#itemPicker').addEventListener('change', onPickerChange);

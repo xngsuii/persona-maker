@@ -117,7 +117,7 @@ button, input, select { font: inherit; color: inherit; }
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding-top: var(--stage-offset); /* 영수증 위 안내 문구 높이만큼 맞춤 */
+  margin-top: var(--stage-offset); /* 영수증 위 안내 문구 높이만큼 맞춤 */
 }
 
 .panel {
